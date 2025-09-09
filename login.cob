@@ -104,7 +104,7 @@ find-someone-loop.
     end-perform.
 
 skill-loop.
-    perform until ws-menu-selection = "5" or ws-eof = "Y"
+    perform until ws-menu-selection = "6" or ws-eof = "Y"
        perform skill-menu
        perform read-input-file
        if ws-eof not = "Y"
@@ -124,6 +124,9 @@ skill-loop.
                    move "0" to ws-menu-selection
                    perform resume-loop
                when "5"
+                   move "0" to ws-menu-selection
+                   perform cobol-loop
+               when "6"
                    display "Returning.."
                when other 
                    display "Invalid choice: " ws-menu-selection
@@ -200,6 +203,23 @@ resume-loop.
        end-if
     end-perform.
 
+cobol-loop.
+    perform until ws-menu-selection = "1" or ws-eof = "Y"
+       perform cobol-menu
+       perform read-input-file
+       if ws-eof not = "Y"
+           move ws-input-value to ws-menu-selection
+           display "Selected: " ws-menu-selection
+           evaluate ws-menu-selection
+               when "1"
+                   display "Returning..."
+               when other 
+                   display "Invalid choice: " ws-menu-selection
+                   move "0" to ws-menu-selection
+           end-evaluate
+       end-if
+    end-perform.
+
 main-menu.
     display "==========================="
     display " Student Manager Menu"
@@ -217,7 +237,8 @@ skill-menu.
     display " 2. Learn Deep Learning"
     display " 3. Learn How To Crack Interview Questions"
     display " 4. Learn How To Optimize Your Resume"
-    display " 5. Return"
+    display " 5. Learn How To Write COBOL Code"
+    display " 6. Return"
     display "==========================="
     display "Reading choice from file...".        
 
@@ -264,6 +285,14 @@ interview-menu.
 resume-menu.
     display "==========================="
     display "Learn How To Optimize Your Resume"
+    display "Under Construction..."
+    display "1. Return"
+    display "==========================="
+    display "Reading choice from file...".
+
+cobol-menu.
+    display "==========================="
+    display "Learn How To Write COBOL Code"
     display "Under Construction..."
     display "1. Return"
     display "==========================="
