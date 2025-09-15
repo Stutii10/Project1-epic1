@@ -1,0 +1,25 @@
+2
+AnubhavExp3
+Password1!
+1
+AnubhavExp3
+Password1!
+4
+1
+Anubhav
+Gupta
+USF
+CS
+2026
+
+2
+2
+Game Dev Intern I
+RetroByte Studio
+Jun 2024 - Aug 2024
+Built gameplay tools; unit tests.
+Game Dev Intern II
+PixelForge
+Jan 2025 - May 2025
+Added ECS; profiled performance.
+5

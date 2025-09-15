@@ -1,0 +1,29 @@
+2
+Joshua
+Password1!
+1
+Joshua
+Password1!
+4
+1
+Joshua
+Kim
+Riverside Institute
+CS
+2026
+
+0
+4
+3
+3
+BS Computer Science
+Riverside Institute
+2022-2026
+Minor in Math
+Riverside Institute
+2023-2025
+Certificate in DevOps
+Riverside Institute
+2024-2025
+5
+4
