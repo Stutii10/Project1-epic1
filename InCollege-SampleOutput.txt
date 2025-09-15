@@ -1,0 +1,102 @@
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Create Account - Enter a username (max 20 chars, no spaces).
+Username:
+Password requirements:
+- 8 to 12 characters
+- At least one uppercase letter (A-Z)
+- At least one digit (0-9)
+- At least one special character (!@#$... etc.)
+Please enter your password:
+Account created successfully.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+===========================
+ Student Manager Menu
+ 1. Job/Internship Search
+ 2. Find Someone You Know
+ 3. Learn a New Skill
+ 4. Exit
+===========================
+Reading choice from file...
+Selected: 3ice from file...
+===========================
+ Skill Menu
+ 1. Learn Web Development
+ 2. Learn Deep Learning
+ 3. Learn How To Crack Interview Questions
+ 4. Learn How To Optimize Your Resume
+ 5. Return
+===========================
+Reading choice from file...
+Selected: 1ice from file...
+===========================
+Learn Web Development
+Under Construction
+1. Return
+===========================
+Reading choice from file...
+Selected: 1ice from file...
+Returning...
+===========================
+ Skill Menu
+ 1. Learn Web Development
+ 2. Learn Deep Learning
+ 3. Learn How To Crack Interview Questions
+ 4. Learn How To Optimize Your Resume
+ 5. Return
+===========================
+Reading choice from file...
+Selected: 5ice from file...
+Returning..
+===========================
+ Student Manager Menu
+ 1. Job/Internship Search
+ 2. Find Someone You Know
+ 3. Learn a New Skill
+ 4. Exit
+===========================
+Reading choice from file...
+Selected: 1ice from file...
+===========================
+Job/Internship Search
+Under Construction
+1. Return
+===========================
+Reading choice from file...
+Selected: 1ice from file...
+Returning...
+===========================
+ Student Manager Menu
+ 1. Job/Internship Search
+ 2. Find Someone You Know
+ 3. Learn a New Skill
+ 4. Exit
+===========================
+Reading choice from file...
+Selected: 2ice from file...
+===========================
+Find Someone You Know
+Under Construction
+1. Return
+===========================
+Reading choice from file...
+Selected: 1ice from file...
+Returning...
+===========================
+ Student Manager Menu
+ 1. Job/Internship Search
+ 2. Find Someone You Know
+ 3. Learn a New Skill
+ 4. Exit
+===========================
+Reading choice from file...
+Selected: 4ice from file...
+Logging out... Goodbye!

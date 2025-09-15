@@ -1,0 +1,5 @@
+Godoy Pastore, Tomas: Scrum Master
+Goyal, Stuti: Developer #1
+Guerrero-Rangel, Marvin: Developer #2
+Gupta, Anubhav: Tester #1
+Henry, Elise: Tester #2
