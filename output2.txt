@@ -1,0 +1,92 @@
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Enter a username (max 20 chars, no spaces).
+Username:
+Password requirements:
+- 8 to 12 characters
+- At least one uppercase letter (A-Z)
+- At least one digit (0-9)
+- At least one special character (!@#$... etc.)
+Please enter your password:
+Account created successfully.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+===========================
+ Student Manager Menu
+ 1. Job/Internship Search
+ 2. Find Someone You Know
+ 3. Learn a New Skill
+ 4. Create/Edit My Profile
+ 5. Exit
+===========================
+Reading choice from file...
+Selected: 4
+===========================
+ Profile Management
+ 1. Edit Basic Information
+ 2. Edit Experience
+ 3. Edit Education
+ 4. View My Profile
+ 5. Save Profile
+ 6. Return
+===========================
+Reading choice from file...
+Selected: 1
+=== Basic Information ===
+Enter First Name (required):
+Enter Last Name (required):
+Enter University/College (required):
+Enter Major (required):
+Enter Graduation Year (4 digits, e.g. 2025):
+Enter About Me (optional, press enter to skip):
+Basic information updated.
+===========================
+ Profile Management
+ 1. Edit Basic Information
+ 2. Edit Experience
+ 3. Edit Education
+ 4. View My Profile
+ 5. Save Profile
+ 6. Return
+===========================
+Reading choice from file...
+Selected: 5
+Profile saved successfully.
+===========================
+ Profile Management
+ 1. Edit Basic Information
+ 2. Edit Experience
+ 3. Edit Education
+ 4. View My Profile
+ 5. Save Profile
+ 6. Return
+===========================
+Reading choice from file...
+Selected: 0
+Invalid choice: 0
+===========================
+ Profile Management
+ 1. Edit Basic Information
+ 2. Edit Experience
+ 3. Edit Education
+ 4. View My Profile
+ 5. Save Profile
+ 6. Return
+===========================
+Reading choice from file...
+Selected: 1
+=== Basic Information ===
+Enter First Name (required):
+Enter Last Name (required):
+End of file reached
+Enter University/College (required):
+Enter Major (required):
+Enter About Me (optional, press enter to skip):
+Basic information updated.

@@ -1,0 +1,31 @@
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Enter a username (max 20 chars, no spaces).
+Username:
+Password requirements:
+- 8 to 12 characters
+- At least one uppercase letter (A-Z)
+- At least one digit (0-9)
+- At least one special character (!@#$... etc.)
+Please enter your password:
+Account created successfully.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+===========================
+ Student Manager Menu
+ 1. Job/Internship Search
+ 2. Find Someone You Know
+ 3. Learn a New Skill
+ 4. Create/Edit My Profile
+ 5. Exit
+===========================
+Reading choice from file...
+Selected: 5
+Logging out... Goodbye!

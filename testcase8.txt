@@ -1,24 +1,18 @@
 2
-Marvin
+Case8User
 Password1!
-Marvin
-Singh
-Metro University
-IS
-2027
-
-0
-3
-BSc
-Metro University
-2023-2027
-Minor in Game Design
-Metro University
-2024-2026
-Certificate in Cloud Computing
-Metro University
-2025-2026
 1
-Marvin
+Case8User
 Password1!
-2
+4
+1
+Maya
+Patel
+Coastal University
+Computer Science
+2026
+Love systems + DL.
+4
+5
+6
+5
