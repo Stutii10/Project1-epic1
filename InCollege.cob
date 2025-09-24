@@ -722,7 +722,6 @@
        PERFORM READ-NEXT-INPUT
        MOVE FUNCTION TRIM(InLine) TO Prof-Major
 
-       SET Year-Is-Invalid TO TRUE
        PERFORM UNTIL Year-Is-Valid
            MOVE "Enter Graduation Year (4 digits, e.g. 2025): " TO WS-MSG
            PERFORM OUT-MSG
@@ -1025,10 +1024,6 @@
            END-READ
        END-PERFORM
 
-       IF Profile-Not-Exists
-           PERFORM Clear-Profile-Data
-       END-IF
-
        CLOSE PROFILES-FILE
        OPEN EXTEND PROFILES-FILE
        .
@@ -1063,12 +1058,10 @@
        MOVE Profile-Line(1495:20) TO Prof-Edu-Years(3)
        .
 
-   Clear-Profile-Data.
-       INITIALIZE Current-User-Profile
-       .
-
    Save-User-Profile.
-       *> Save current user's profile data
+       CLOSE PROFILES-FILE
+       OPEN OUTPUT PROFILES-FILE
+
        MOVE SPACES TO Profile-Line
        STRING
            UserName                    DELIMITED BY SIZE
@@ -1101,39 +1094,10 @@
            Prof-Edu-Years(3)           DELIMITED BY SIZE
            INTO Profile-Line
        END-STRING
-       
-       CLOSE PROFILES-FILE
-       OPEN I-O PROFILES-FILE
-       IF FS-PROF = "35"
-           CLOSE PROFILES-FILE
-           OPEN OUTPUT PROFILES-FILE
-           WRITE Profile-Line
-           CLOSE PROFILES-FILE
-           OPEN EXTEND PROFILES-FILE
-           EXIT PARAGRAPH
-       END-IF
-       
-       *> Read existing file and rewrite with updated profile
-       MOVE 'N' TO PROF-EOF
-       PERFORM UNTIL PROF-EOF = 'Y'
-           READ PROFILES-FILE
-               AT END
-                   MOVE 'Y' TO PROF-EOF
-               NOT AT END
-                   IF Profile-Line(1:20) = UserName
-                       *> Update existing user profile
-                       REWRITE Profile-Line
-                       CLOSE PROFILES-FILE
-                       OPEN EXTEND PROFILES-FILE
-                       EXIT PARAGRAPH
-                   END-IF
-           END-READ
-       END-PERFORM
-       
-       *> User profile not found, append new profile
+       WRITE Profile-Line
+
        CLOSE PROFILES-FILE
        OPEN EXTEND PROFILES-FILE
-       WRITE Profile-Line
        .
 
    *> -----------------------------
