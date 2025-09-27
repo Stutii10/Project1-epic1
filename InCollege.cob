@@ -1,8 +1,10 @@
 *> =======================================================
-       *> InCollege - Complete System with Authentication & Features
+       *> InCollege - Complete System with Connection Requests
        *> Inputs  : InCollege-Input.txt (one line per prompt)
        *> Outputs : InCollege-Output.txt (mirrors messages)
        *> Accounts: Accounts.dat (username|password per line)
+       *> Profiles: Profiles.dat (user profile data)
+       *> Connections: Connections.dat (sender|recipient per line)
        *> =======================================================
        
    IDENTIFICATION DIVISION.
@@ -27,6 +29,10 @@
            ASSIGN TO 'Profiles.dat'
            ORGANIZATION IS LINE SEQUENTIAL
            FILE STATUS IS FS-PROF.
+       SELECT CONNECTIONS-FILE
+           ASSIGN TO 'Connections.dat'
+           ORGANIZATION IS LINE SEQUENTIAL
+           FILE STATUS IS FS-CONN.
 
    DATA DIVISION.
    FILE SECTION.
@@ -42,15 +48,20 @@
    FD  PROFILES-FILE.
    01  Profile-Line                   PIC X(2000).
 
+   FD  CONNECTIONS-FILE.
+   01  Connection-Line                PIC X(60).
+
    WORKING-STORAGE SECTION.
    *> ------- File status variables -------
    01  WS-FILE-STATUS                 PIC XX.
    01  WS-OUTPUT-STATUS               PIC XX.
    01  FS-ACCT                        PIC XX VALUE '00'.
    01  FS-PROF                        PIC XX VALUE '00'.
+   01  FS-CONN                        PIC XX VALUE '00'.
    01  EOF-IN                         PIC X VALUE 'N'.
    01  ACCT-EOF                       PIC X VALUE 'N'.
    01  PROF-EOF                       PIC X VALUE 'N'.
+   01  CONN-EOF                       PIC X VALUE 'N'.
 
    *> ------- Menu / input buffers -------
    01  UserChoice                     PIC 9.
@@ -77,6 +88,13 @@
            10  Acc-Username           PIC X(20).
            10  Acc-Password           PIC X(20).
 
+   *> ------- Connection management -------
+   01  Connection-Count               PIC 99 VALUE 0.
+   01  Connections.
+       05  Connection OCCURS 50 TIMES.
+           10  Conn-Sender            PIC X(20).
+           10  Conn-Recipient         PIC X(20).
+
    *> ------- Flags -------
    01  UE-Flag                        PIC 9 VALUE 0.
        88  Username-Exists                  VALUE 1.
@@ -90,6 +108,10 @@
    01  Has-Special                    PIC 9 VALUE 0.
    01  CountVar                       PIC 99 VALUE 0.
    01  Has-Entries                    PIC 9 VALUE 0.
+
+   01  Connection-Valid-Flag          PIC X VALUE 'Y'.
+       88  Connection-Is-Valid              VALUE 'Y'.
+       88  Connection-Is-Invalid            VALUE 'N'.
 
    *> Special characters set (double the quote inside)
    01  Specials                       PIC X(40)
@@ -132,6 +154,7 @@
 
    *> Search variables
    01  Search-Name                    PIC X(60).
+   01  Search-Username                PIC X(20).
    01  Search-Result-Profile.
        05  Search-First-Name          PIC X(30).
        05  Search-Last-Name           PIC X(30).
@@ -158,6 +181,7 @@
    Main.
        PERFORM Open-Files
        PERFORM Load-Accounts-From-Disk
+       PERFORM Load-Connections-From-Disk
 
        *> Main program loop to allow returning to login screen
        PERFORM UNTIL EOF-IN = "Y"
@@ -209,8 +233,10 @@
                        WHEN "4"
                            PERFORM Find-Someone
                        WHEN "5"
-                           PERFORM Skill-Loop
+                           PERFORM View-Pending-Requests
                        WHEN "6"
+                           PERFORM Skill-Loop
+                       WHEN "7"
                            MOVE "You have logged out." TO WS-MSG
                            PERFORM OUT-MSG
                            SET USER-NOT-LOGGED-IN TO TRUE
@@ -264,12 +290,26 @@
 
        *> Reopen profiles in EXTEND for appends after startup load
        OPEN EXTEND PROFILES-FILE
+
+       *> Try to open connections for INPUT; if missing, create it.
+       OPEN INPUT  CONNECTIONS-FILE
+       IF FS-CONN = "35"
+           OPEN OUTPUT CONNECTIONS-FILE
+           CLOSE CONNECTIONS-FILE
+           OPEN INPUT CONNECTIONS-FILE
+       END-IF
+       CLOSE CONNECTIONS-FILE
+
+       *> Reopen connections in EXTEND for appends after startup load
+       OPEN EXTEND CONNECTIONS-FILE
        .
 
    Close-Files.
        CLOSE INPUT-FILE
        CLOSE OUTPUT-FILE
+       CLOSE ACCOUNTS-FILE
        CLOSE PROFILES-FILE
+       CLOSE CONNECTIONS-FILE
        .
 
    *> Display to screen AND write to output file
@@ -458,9 +498,11 @@
        PERFORM OUT-MSG
        MOVE "4. Find someone you know" TO WS-MSG
        PERFORM OUT-MSG
-       MOVE "5. Learn a New Skill" TO WS-MSG
+       MOVE "5. View My Pending Connection Requests" TO WS-MSG
        PERFORM OUT-MSG
-       MOVE "6. Log Out" TO WS-MSG
+       MOVE "6. Learn a New Skill" TO WS-MSG
+       PERFORM OUT-MSG
+       MOVE "7. Log Out" TO WS-MSG
        PERFORM OUT-MSG
        MOVE "Enter your choice: " TO WS-MSG
        PERFORM OUT-MSG
@@ -492,11 +534,157 @@
            PERFORM Perform-Search
            IF User-Found
                PERFORM Display-Search-Profile
+               *> Add connection request option after displaying profile
+               PERFORM Connection-Options-Menu
            ELSE
                MOVE "No one by that name could be found." TO WS-MSG
                PERFORM OUT-MSG
            END-IF
        END-IF
+       .
+
+   Connection-Options-Menu.
+       PERFORM UNTIL WS-MENU-SELECTION = "2" OR EOF-IN = "Y"
+           MOVE "1. Send Connection Request" TO WS-MSG
+           PERFORM OUT-MSG
+           MOVE "2. Back to Main Menu" TO WS-MSG
+           PERFORM OUT-MSG
+           MOVE "Enter your choice: " TO WS-MSG
+           PERFORM OUT-MSG
+           
+           PERFORM READ-NEXT-INPUT
+           IF EOF-IN NOT = "Y"
+               MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+               EVALUATE WS-MENU-SELECTION
+                   WHEN "1"
+                       PERFORM Send-Connection-Request
+                       MOVE "2" TO WS-MENU-SELECTION
+                   WHEN "2"
+                       CONTINUE
+                   WHEN OTHER
+                       MOVE "Invalid choice." TO WS-MSG
+                       PERFORM OUT-MSG
+               END-EVALUATE
+           END-IF
+       END-PERFORM
+       .
+
+   Send-Connection-Request.
+       *> Validate the connection request
+       PERFORM Validate-Connection-Request
+       IF Connection-Is-Valid
+           *> Add to in-memory connections array
+           ADD 1 TO Connection-Count
+           MOVE UserName TO Conn-Sender(Connection-Count)
+           MOVE Search-Username TO Conn-Recipient(Connection-Count)
+           
+           *> Persist to file
+           PERFORM Append-Connection-To-Disk
+           
+           MOVE SPACES TO WS-MSG
+           STRING "Connection request sent to " DELIMITED BY SIZE
+                  FUNCTION TRIM(Search-First-Name) DELIMITED BY SIZE
+                  " " DELIMITED BY SIZE
+                  FUNCTION TRIM(Search-Last-Name) DELIMITED BY SIZE
+                  "." DELIMITED BY SIZE
+                  INTO WS-MSG
+           PERFORM OUT-MSG
+       END-IF
+       .
+
+   Validate-Connection-Request.
+       SET Connection-Is-Valid TO TRUE
+       
+       *> Check if trying to connect with yourself
+       IF UserName = Search-Username
+           MOVE "You cannot send a connection request to yourself." TO WS-MSG
+           PERFORM OUT-MSG
+           SET Connection-Is-Invalid TO TRUE
+           EXIT PARAGRAPH
+       END-IF
+       
+       *> Check if connection already exists (either direction)
+       PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
+           IF (Conn-Sender(I) = UserName AND 
+               Conn-Recipient(I) = Search-Username) OR
+              (Conn-Sender(I) = Search-Username AND 
+               Conn-Recipient(I) = UserName)
+               IF Conn-Sender(I) = UserName
+                   MOVE "You have already sent a connection request to this user." TO WS-MSG
+               ELSE
+                   MOVE "This user has already sent you a connection request." TO WS-MSG
+               END-IF
+               PERFORM OUT-MSG
+               SET Connection-Is-Invalid TO TRUE
+               EXIT PERFORM
+           END-IF
+       END-PERFORM
+       .
+
+   View-Pending-Requests.
+       MOVE "--- Pending Connection Requests ---" TO WS-MSG
+       PERFORM OUT-MSG
+       
+       MOVE 0 TO Has-Entries
+       PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
+           IF Conn-Recipient(I) = UserName
+               ADD 1 TO Has-Entries
+               PERFORM Display-Pending-Request-Sender
+           END-IF
+       END-PERFORM
+       
+       IF Has-Entries = 0
+           MOVE "You have no pending connection requests at this time." TO WS-MSG
+           PERFORM OUT-MSG
+       END-IF
+       
+       MOVE "-----------------------------------" TO WS-MSG
+       PERFORM OUT-MSG
+       .
+
+   Display-Pending-Request-Sender.
+       *> Find and display the profile of the sender
+       PERFORM Find-Profile-By-Username
+       IF Profile-Exists
+           MOVE SPACES TO WS-MSG
+           STRING "From: " DELIMITED BY SIZE
+                  FUNCTION TRIM(Prof-First-Name) DELIMITED BY SIZE
+                  " " DELIMITED BY SIZE
+                  FUNCTION TRIM(Prof-Last-Name) DELIMITED BY SIZE
+                  " (" DELIMITED BY SIZE
+                  FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
+                  ")" DELIMITED BY SIZE
+                  INTO WS-MSG
+           PERFORM OUT-MSG
+       ELSE
+           MOVE SPACES TO WS-MSG
+           STRING "From: " DELIMITED BY SIZE
+                  FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
+                  INTO WS-MSG
+           PERFORM OUT-MSG
+       END-IF
+       .
+
+   Find-Profile-By-Username.
+       SET Profile-Not-Exists TO TRUE
+       CLOSE PROFILES-FILE
+       OPEN INPUT PROFILES-FILE
+       MOVE 'N' TO PROF-EOF
+
+       PERFORM UNTIL PROF-EOF = 'Y' OR Profile-Exists
+           READ PROFILES-FILE
+               AT END
+                   MOVE 'Y' TO PROF-EOF
+               NOT AT END
+                   IF Profile-Line(1:20) = Conn-Sender(I)
+                       SET Profile-Exists TO TRUE
+                       PERFORM Parse-Profile-Line
+                   END-IF
+           END-READ
+       END-PERFORM
+
+       CLOSE PROFILES-FILE
+       OPEN EXTEND PROFILES-FILE
        .
 
    Skill-Loop.
@@ -1114,6 +1302,7 @@
                AT END
                    MOVE 'Y' TO PROF-EOF
                NOT AT END
+                   MOVE Profile-Line(1:20) TO Search-Username
                    MOVE Profile-Line(21:30) TO Search-First-Name
                    MOVE Profile-Line(51:30) TO Search-Last-Name
                    MOVE SPACES TO WS-MSG
@@ -1293,6 +1482,53 @@
                    END-IF
                END-IF
            END-PERFORM
+       END-IF
+       .
+
+   *> -----------------------------
+   *> CONNECTION MANAGEMENT FUNCTIONS
+   *> -----------------------------
+   Load-Connections-From-Disk.
+       CLOSE CONNECTIONS-FILE
+       OPEN INPUT CONNECTIONS-FILE
+       MOVE 'N' TO CONN-EOF
+
+       PERFORM UNTIL CONN-EOF = 'Y'
+           READ CONNECTIONS-FILE
+               AT END
+                   MOVE 'Y' TO CONN-EOF
+               NOT AT END
+                   MOVE SPACES TO U-Part P-Part
+                   UNSTRING Connection-Line DELIMITED BY '|'
+                       INTO U-Part, P-Part
+                   END-UNSTRING
+                   IF U-Part NOT = SPACES AND P-Part NOT = SPACES
+                       IF Connection-Count < 50
+                           ADD 1 TO Connection-Count
+                           MOVE U-Part TO Conn-Sender(Connection-Count)
+                           MOVE P-Part TO Conn-Recipient(Connection-Count)
+                       END-IF
+                   END-IF
+           END-READ
+       END-PERFORM
+
+       CLOSE CONNECTIONS-FILE
+       OPEN EXTEND CONNECTIONS-FILE
+       .
+
+   Append-Connection-To-Disk.
+       IF Connection-Count <= 50
+           MOVE ALL SPACES TO Connection-Line
+           STRING
+               FUNCTION TRIM(Conn-Sender(Connection-Count)) DELIMITED BY SIZE
+               "|" DELIMITED BY SIZE
+               FUNCTION TRIM(Conn-Recipient(Connection-Count)) DELIMITED BY SIZE
+               INTO Connection-Line
+           END-STRING
+           WRITE Connection-Line
+       ELSE
+           MOVE "Max 50 connections reached, cannot save new connection." TO WS-MSG
+           PERFORM OUT-MSG
        END-IF
        .
 
