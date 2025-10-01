@@ -1248,7 +1248,7 @@
 
    Save-User-Profile.
        CLOSE PROFILES-FILE
-       OPEN OUTPUT PROFILES-FILE
+       OPEN EXTEND PROFILES-FILE
 
        MOVE SPACES TO Profile-Line
        STRING
@@ -1654,3 +1654,4 @@
            PERFORM OUT-MSG
        END-IF
        .
+       
