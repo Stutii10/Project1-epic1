@@ -190,24 +190,18 @@ Welcome, frank!
 7. Log Out
 Enter your choice:
 Enter the full name of the person you are looking for:
-No one by that name could be found.
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. Learn a New Skill
-7. Log Out
-Enter your choice:
---- Your Profile ---
-Name: Frank Wilson
-University: Columbia
-Major: Physics
+--- Found User Profile ---
+Name: Eve Davis
+University: Princeton
+Major: Mathematics
 Graduation Year: 2026
-About Me: 2024
+About Me: Love solving complex problems
 Experience: None
 Education: None
---------------------
+-------------------------
+1. Send Connection Request
+2. Back to Main Menu
+Enter your choice:
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job

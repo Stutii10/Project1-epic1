@@ -222,7 +222,19 @@ Welcome, jack!
 7. Log Out
 Enter your choice:
 Enter the full name of the person you are looking for:
-No one by that name could be found.
+--- Found User Profile ---
+Name: Kate Moore
+University: USC
+Major: Theater Arts
+Graduation Year: 2026
+About Me: 2024
+Experience: None
+Education: None
+-------------------------
+1. Send Connection Request
+2. Back to Main Menu
+Enter your choice:
+Connection request sent to Kate Moore.
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -231,44 +243,78 @@ No one by that name could be found.
 6. Learn a New Skill
 7. Log Out
 Enter your choice:
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
 Enter your choice:
-Invalid choice.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, leo!
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. Learn a New Skill
+7. Log Out
 Enter your choice:
-=== Basic Information ===
-Enter First Name (required):
-Enter Last Name (required):
-Enter University/College (required):
-Enter Major (required):
-Enter About Me (optional, press enter to skip):
-Basic information updated.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
+Enter the full name of the person you are looking for:
+--- Found User Profile ---
+Name: Kate Moore
+University: USC
+Major: Theater Arts
+Graduation Year: 2026
+About Me: 2024
+Experience: None
+Education: None
+-------------------------
+1. Send Connection Request
+2. Back to Main Menu
 Enter your choice:
-Invalid choice.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
+Connection request sent to Kate Moore.
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. Learn a New Skill
+7. Log Out
 Enter your choice:
-=== Basic Information ===
-Enter First Name (required):
-Enter Last Name (required):
-Enter University/College (required):
-Enter Major (required):
-Enter About Me (optional, press enter to skip):
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, kate!
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. Learn a New Skill
+7. Log Out
+Enter your choice:
+--- Pending Connection Requests ---
+From: Jack Miller (jack)
+From: Leo Thomas (leo)
+-----------------------------------
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. Learn a New Skill
+7. Log Out
+Enter your choice:
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
 End of file reached
-Basic information updated.
+Invalid choice. Please try again.

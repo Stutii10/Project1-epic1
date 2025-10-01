@@ -190,7 +190,7 @@ Welcome, bob!
 7. Log Out
 Enter your choice:
 --- Pending Connection Requests ---
-From: alice
+From: Alice Johnson (alice)
 -----------------------------------
 1. Create/Edit My Profile
 2. View My Profile
