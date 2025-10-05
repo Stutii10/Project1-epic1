@@ -7,6 +7,9 @@
        *> Connections: Connections.dat (sender|recipient per line)
        *> =======================================================
        
+
+       *> TO-DO: THIS IS THE CODE FROM WEEK 4. INCORPORATE FEATURES CREATED BY CLAUDE AND TEST
+
    IDENTIFICATION DIVISION.
    PROGRAM-ID. InCollege.
 
@@ -52,6 +55,7 @@
    01  Connection-Line                PIC X(60).
 
    WORKING-STORAGE SECTION.
+   01 Target-Username                 PIC X(20).
    *> ------- File status variables -------
    01  WS-FILE-STATUS                 PIC XX.
    01  WS-OUTPUT-STATUS               PIC XX.
@@ -71,6 +75,8 @@
    01  PassLen                        PIC 99.
    01  TempChar                       PIC X.
    01  I                              PIC 99.
+   01  J                              PIC 99.
+
    01  WS-MSG                         PIC X(200).
 
    *> ------- Main menu navigation -------
@@ -88,12 +94,15 @@
            10  Acc-Username           PIC X(20).
            10  Acc-Password           PIC X(20).
 
-   *> ------- Connection management -------
+   *> ------- Connection management (with status) -------
    01  Connection-Count               PIC 99 VALUE 0.
    01  Connections.
        05  Connection OCCURS 50 TIMES.
            10  Conn-Sender            PIC X(20).
            10  Conn-Recipient         PIC X(20).
+           10  Conn-Status            PIC X.
+               *> P = Pending, A = Accepted, R = Rejected
+
 
    *> ------- Flags -------
    01  UE-Flag                        PIC 9 VALUE 0.
@@ -120,6 +129,7 @@
    *> Parse helpers
    01  U-Part                         PIC X(20).
    01  P-Part                         PIC X(20).
+   01  S-Part                         PIC X.
 
    *> ------- Profile data structures -------
    01  Current-User-Profile.
@@ -177,6 +187,21 @@
        88  User-Found                       VALUE 'Y'.
        88  User-Not-Found                   VALUE 'N'.
 
+          *> Temp profile for network display
+   01  Temp-Profile.
+       05  Temp-First-Name            PIC X(30).
+       05  Temp-Last-Name             PIC X(30).
+       05  Temp-University            PIC X(50).
+       05  Temp-Major                 PIC X(40).
+
+   01  Request-Index                  PIC 99.
+   01  Pending-Request-Count          PIC 99 VALUE 0.
+   01  Pending-Requests.
+       05  Pending-Request OCCURS 50 TIMES.
+           10  Pend-Index             PIC 99.
+           10  Pend-Sender            PIC X(20).
+
+
    PROCEDURE DIVISION.
    Main.
        PERFORM Open-Files
@@ -233,10 +258,12 @@
                        WHEN "4"
                            PERFORM Find-Someone
                        WHEN "5"
-                           PERFORM View-Pending-Requests
+                           PERFORM View-Pending-Requests-With-Actions
                        WHEN "6"
+                           PERFORM View-My-Network
+                       When "7"
                            PERFORM Skill-Loop
-                       WHEN "7"
+                       WHEN "8"
                            MOVE "You have logged out." TO WS-MSG
                            PERFORM OUT-MSG
                            SET USER-NOT-LOGGED-IN TO TRUE
@@ -500,9 +527,11 @@
        PERFORM OUT-MSG
        MOVE "5. View My Pending Connection Requests" TO WS-MSG
        PERFORM OUT-MSG
-       MOVE "6. Learn a New Skill" TO WS-MSG
+       MOVE "6. View My Network" TO WS-MSG
        PERFORM OUT-MSG
-       MOVE "7. Log Out" TO WS-MSG
+       MOVE "7. Learn a New Skill" TO WS-MSG
+       PERFORM OUT-MSG
+       MOVE "8. Log Out" TO WS-MSG
        PERFORM OUT-MSG
        MOVE "Enter your choice: " TO WS-MSG
        PERFORM OUT-MSG
@@ -577,7 +606,7 @@
            ADD 1 TO Connection-Count
            MOVE UserName TO Conn-Sender(Connection-Count)
            MOVE Search-Username TO Conn-Recipient(Connection-Count)
-           
+           MOVE "P" TO Conn-Status(Connection-Count) 
            *> Persist to file
            PERFORM Append-Connection-To-Disk
            
@@ -621,51 +650,252 @@
        END-PERFORM
        .
 
-   View-Pending-Requests.
+   *> ========================================
+   *> NEW FEATURE: View Pending Requests with Accept/Reject
+   *> ========================================
+   View-Pending-Requests-With-Actions.
        MOVE "--- Pending Connection Requests ---" TO WS-MSG
        PERFORM OUT-MSG
        
-       MOVE 0 TO Has-Entries
+       *> Build list of pending requests for current user
+       MOVE 0 TO Pending-Request-Count
        PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
-           IF Conn-Recipient(I) = UserName
-               ADD 1 TO Has-Entries
-               PERFORM Display-Pending-Request-Sender
+           IF Conn-Recipient(I) = UserName AND Conn-Status(I) = "P"
+               ADD 1 TO Pending-Request-Count
+               MOVE I TO Pend-Index(Pending-Request-Count)
+               MOVE Conn-Sender(I) TO Pend-Sender(Pending-Request-Count)
            END-IF
        END-PERFORM
        
-       IF Has-Entries = 0
+       IF Pending-Request-Count = 0
            MOVE "You have no pending connection requests at this time." TO WS-MSG
            PERFORM OUT-MSG
+       ELSE
+           *> Display each request with Accept/Reject options
+           PERFORM VARYING J FROM 1 BY 1 UNTIL J > Pending-Request-Count
+               MOVE Pend-Index(J) TO I
+               PERFORM Display-Pending-Request-Details
+               PERFORM Handle-Request-Action
+               IF EOF-IN = "Y"
+                   EXIT PERFORM
+               END-IF
+           END-PERFORM
        END-IF
        
        MOVE "-----------------------------------" TO WS-MSG
        PERFORM OUT-MSG
        .
 
-   Display-Pending-Request-Sender.
+       Display-Pending-Request-Details.
        *> Find and display the profile of the sender
-       PERFORM Find-Profile-By-Username
+       PERFORM Find-Profile-By-Connection-Sender
        IF Profile-Exists
            MOVE SPACES TO WS-MSG
-           STRING "From: " DELIMITED BY SIZE
-                  FUNCTION TRIM(Prof-First-Name) DELIMITED BY SIZE
+           STRING "Request from: " DELIMITED BY SIZE
+                  FUNCTION TRIM(Temp-First-Name) DELIMITED BY SIZE
                   " " DELIMITED BY SIZE
-                  FUNCTION TRIM(Prof-Last-Name) DELIMITED BY SIZE
-                  " (" DELIMITED BY SIZE
-                  FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
-                  ")" DELIMITED BY SIZE
+                  FUNCTION TRIM(Temp-Last-Name) DELIMITED BY SIZE
+                  INTO WS-MSG
+           PERFORM OUT-MSG
+           MOVE SPACES TO WS-MSG
+           STRING "  University: " DELIMITED BY SIZE
+                  FUNCTION TRIM(Temp-University) DELIMITED BY SIZE
+                  INTO WS-MSG
+           PERFORM OUT-MSG
+           MOVE SPACES TO WS-MSG
+           STRING "  Major: " DELIMITED BY SIZE
+                  FUNCTION TRIM(Temp-Major) DELIMITED BY SIZE
                   INTO WS-MSG
            PERFORM OUT-MSG
        ELSE
            MOVE SPACES TO WS-MSG
-           STRING "From: " DELIMITED BY SIZE
+           STRING "Request from: " DELIMITED BY SIZE
                   FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
                   INTO WS-MSG
            PERFORM OUT-MSG
        END-IF
        .
 
-   Find-Profile-By-Username.
+          Handle-Request-Action.
+       PERFORM UNTIL WS-MENU-SELECTION = "1" OR 
+                     WS-MENU-SELECTION = "2" OR 
+                     EOF-IN = "Y"
+           MOVE "1. Accept" TO WS-MSG
+           PERFORM OUT-MSG
+           MOVE "2. Reject" TO WS-MSG
+           PERFORM OUT-MSG
+           MOVE "Enter your choice: " TO WS-MSG
+           PERFORM OUT-MSG
+           
+           PERFORM READ-NEXT-INPUT
+           IF EOF-IN NOT = "Y"
+               MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+               EVALUATE WS-MENU-SELECTION
+                   WHEN "1"
+                       PERFORM Accept-Connection-Request
+                   WHEN "2"
+                       PERFORM Reject-Connection-Request
+                   WHEN OTHER
+                       MOVE "Invalid choice. Please select 1 or 2." TO WS-MSG
+                       PERFORM OUT-MSG
+               END-EVALUATE
+           END-IF
+       END-PERFORM
+       MOVE SPACES TO WS-MENU-SELECTION
+       .
+
+       Accept-Connection-Request.
+       *> Update status in memory
+       MOVE "A" TO Conn-Status(I)
+       
+       *> Rewrite the entire connections file
+       PERFORM Rewrite-Connections-File
+       
+       MOVE SPACES TO WS-MSG
+       STRING "Connection request from " DELIMITED BY SIZE
+              FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
+              " accepted." DELIMITED BY SIZE
+              INTO WS-MSG
+       PERFORM OUT-MSG
+       .
+
+   *> ========================================
+   *> NEW FEATURE: View My Network
+   *> ========================================
+
+   Reject-Connection-Request.
+       *> Update status in memory
+       MOVE "R" TO Conn-Status(I)
+       
+       *> Rewrite the entire connections file
+       PERFORM Rewrite-Connections-File
+       
+       MOVE SPACES TO WS-MSG
+       STRING "Connection request from " DELIMITED BY SIZE
+              FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
+              " rejected." DELIMITED BY SIZE
+              INTO WS-MSG
+       PERFORM OUT-MSG
+       .
+
+       View-My-Network.
+       MOVE "--- My Network ---" TO WS-MSG
+       PERFORM OUT-MSG
+       
+       MOVE 0 TO Has-Entries
+       PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
+           IF Conn-Status(I) = "A"
+               IF Conn-Sender(I) = UserName OR Conn-Recipient(I) = UserName
+                   ADD 1 TO Has-Entries
+                   PERFORM Display-Network-Connection
+               END-IF
+           END-IF
+       END-PERFORM
+       
+       IF Has-Entries = 0
+           MOVE "You have no connections yet." TO WS-MSG
+           PERFORM OUT-MSG
+       END-IF
+       
+       MOVE "-------------------" TO WS-MSG
+       PERFORM OUT-MSG
+       .
+
+   Display-Network-Connection.
+       *> Determine which user is the connection
+       IF Conn-Sender(I) = UserName
+           MOVE Conn-Recipient(I) TO Target-Username
+           PERFORM Find-Profile-For-Network
+       ELSE
+           MOVE Conn-Sender(I) TO Target-Username
+           PERFORM Find-Profile-For-Network
+       END-IF
+       
+       IF Profile-Exists
+           MOVE SPACES TO WS-MSG
+           STRING "- " DELIMITED BY SIZE
+                  FUNCTION TRIM(Temp-First-Name) DELIMITED BY SIZE
+                  " " DELIMITED BY SIZE
+                  FUNCTION TRIM(Temp-Last-Name) DELIMITED BY SIZE
+                  INTO WS-MSG
+           PERFORM OUT-MSG
+           MOVE SPACES TO WS-MSG
+           STRING "  University: " DELIMITED BY SIZE
+                  FUNCTION TRIM(Temp-University) DELIMITED BY SIZE
+                  ", Major: " DELIMITED BY SIZE
+                  FUNCTION TRIM(Temp-Major) DELIMITED BY SIZE
+                  INTO WS-MSG
+           PERFORM OUT-MSG
+       ELSE
+           IF Conn-Sender(I) = UserName
+               MOVE SPACES TO WS-MSG
+               STRING "- " DELIMITED BY SIZE
+                      FUNCTION TRIM(Conn-Recipient(I)) DELIMITED BY SIZE
+                      INTO WS-MSG
+               PERFORM OUT-MSG
+           ELSE
+               MOVE SPACES TO WS-MSG
+               STRING "- " DELIMITED BY SIZE
+                      FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
+                      INTO WS-MSG
+               PERFORM OUT-MSG
+           END-IF
+       END-IF
+       .
+
+   Find-Profile-For-Network.
+       
+       SET Profile-Not-Exists TO TRUE
+       CLOSE PROFILES-FILE
+       OPEN INPUT PROFILES-FILE
+       MOVE 'N' TO PROF-EOF
+
+       PERFORM UNTIL PROF-EOF = 'Y' OR Profile-Exists
+           READ PROFILES-FILE
+               AT END
+                   MOVE 'Y' TO PROF-EOF
+               NOT AT END
+                   IF Profile-Line(1:20) = Target-Username
+                       SET Profile-Exists TO TRUE
+                       MOVE Profile-Line(21:30) TO Temp-First-Name
+                       MOVE Profile-Line(51:30) TO Temp-Last-Name
+                       MOVE Profile-Line(81:50) TO Temp-University
+                       MOVE Profile-Line(131:40) TO Temp-Major
+                   END-IF
+           END-READ
+       END-PERFORM
+
+       CLOSE PROFILES-FILE
+       OPEN EXTEND PROFILES-FILE
+       .
+
+   Rewrite-Connections-File.
+       *> Close and reopen in OUTPUT mode to clear the file
+       CLOSE CONNECTIONS-FILE
+       OPEN OUTPUT CONNECTIONS-FILE
+       
+       *> Write all connections with their current status
+       PERFORM VARYING J FROM 1 BY 1 UNTIL J > Connection-Count
+           IF Conn-Sender(J) NOT = SPACES AND 
+              Conn-Recipient(J) NOT = SPACES
+               MOVE ALL SPACES TO Connection-Line
+               STRING
+                   FUNCTION TRIM(Conn-Sender(J)) DELIMITED BY SIZE
+                   "|" DELIMITED BY SIZE
+                   FUNCTION TRIM(Conn-Recipient(J)) DELIMITED BY SIZE
+                   "|" DELIMITED BY SIZE
+                   Conn-Status(J) DELIMITED BY SIZE
+                   INTO Connection-Line
+               END-STRING
+               WRITE Connection-Line
+           END-IF
+       END-PERFORM
+       
+       CLOSE CONNECTIONS-FILE
+       OPEN EXTEND CONNECTIONS-FILE
+       .
+
+   Find-Profile-By-Connection-Sender.
        SET Profile-Not-Exists TO TRUE
        CLOSE PROFILES-FILE
        OPEN INPUT PROFILES-FILE
@@ -678,15 +908,19 @@
                NOT AT END
                    IF Profile-Line(1:20) = Conn-Sender(I)
                        SET Profile-Exists TO TRUE
-                       PERFORM Parse-Profile-Line
+                       MOVE Profile-Line(21:30) TO Temp-First-Name
+                       MOVE Profile-Line(51:30) TO Temp-Last-Name
+                       MOVE Profile-Line(81:50) TO Temp-University
+                       MOVE Profile-Line(131:40) TO Temp-Major
                    END-IF
            END-READ
        END-PERFORM
 
        CLOSE PROFILES-FILE
        OPEN EXTEND PROFILES-FILE
-       .
 
+       .
+       *>===============================================================
    Skill-Loop.
        PERFORM UNTIL WS-MENU-SELECTION = "5" OR EOF-IN = "Y"
            PERFORM Skill-Menu
@@ -1523,6 +1757,8 @@
                FUNCTION TRIM(Conn-Sender(Connection-Count)) DELIMITED BY SIZE
                "|" DELIMITED BY SIZE
                FUNCTION TRIM(Conn-Recipient(Connection-Count)) DELIMITED BY SIZE
+               "|" DELIMITED BY SIZE
+               Conn-Status(Connection-Count) DELIMITED BY SIZE
                INTO Connection-Line
            END-STRING
            WRITE Connection-Line
@@ -1654,4 +1890,5 @@
            PERFORM OUT-MSG
        END-IF
        .
+       
        
