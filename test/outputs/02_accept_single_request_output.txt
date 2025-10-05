@@ -1,0 +1,82 @@
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, alice!
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Learn a New Skill
+8. Log Out
+Enter your choice:
+Enter the full name of the person you are looking for:
+--- Found User Profile ---
+Name: Bob Brown
+University: State University
+Major: Information Systems
+Graduation Year: 2024
+Experience: None
+Education: None
+-------------------------
+1. Send Connection Request
+2. Back to Main Menu
+Enter your choice:
+Connection request sent to Bob Brown.
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Learn a New Skill
+8. Log Out
+Enter your choice:
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, bob!
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Learn a New Skill
+8. Log Out
+Enter your choice:
+--- Pending Connection Requests ---
+Request from: Alice Anderson
+  University: State University
+  Major: Computer Science
+1. Accept
+2. Reject
+Enter your choice:
+Connection request from alice accepted.
+-----------------------------------
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Learn a New Skill
+8. Log Out
+Enter your choice:
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+End of file reached
+Invalid choice. Please try again.
