@@ -1,15 +1,12 @@
 *> =======================================================
        *> InCollege - Complete System with Connection Requests
-       *> Inputs  : InCollege-Input.txt (one line per prompt)
-       *> Outputs : InCollege-Output.txt (mirrors messages)
+       *> Inputs  : InCollege-Input.txt
+       *> Outputs : InCollege-Output.txt
        *> Accounts: Accounts.dat (username|password per line)
        *> Profiles: Profiles.dat (user profile data)
        *> Connections: Connections.dat (sender|recipient per line)
        *> =======================================================
-       
-
-       *> TO-DO: THIS IS THE CODE FROM WEEK 4. INCORPORATE FEATURES CREATED BY CLAUDE AND TEST
-
+    
    IDENTIFICATION DIVISION.
    PROGRAM-ID. InCollege.
 
