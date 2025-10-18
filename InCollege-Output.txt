@@ -18,7 +18,7 @@ Enter your choice:
 Please enter your username:
 Please enter your password:
 You have successfully logged in.
-Welcome, testuser2!
+Welcome, MyUser!
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -28,46 +28,36 @@ Welcome, testuser2!
 7. Learn a New Skill
 8. Log Out
 Enter your choice:
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
+--- Job Search/Internship Menu ---
+1. Post a Job/Internship
+2. Browse Jobs/Internships
+3. Back to Main Menu
 Enter your choice:
-=== Basic Information ===
-Enter First Name (required):
-Enter Last Name (required):
-Enter University/College (required):
-Enter Major (required):
-Enter Graduation Year (4 digits, e.g. 2025):
-Enter About Me (optional, press enter to skip):
-Basic information updated.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
-Enter your choice:
-=== Experience (up to 3 entries) ===
-How many experience entries to add (1-3)?
-=== Experience Entry 1 ===
+--- Post a New Job/Internship ---
 Enter Job Title:
-Enter Company/Organization:
-Enter Dates (e.g. Summer 2024):
-Enter Description (optional):
-Experience information updated.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
+Enter Description (max 200 chars):
+Enter Employer Name:
+Enter Location:
+Enter Salary (optional, enter 'NONE' to skip):
+Job posted successfully!
+----------------------------------
+--- Job Search/Internship Menu ---
+1. Post a Job/Internship
+2. Browse Jobs/Internships
+3. Back to Main Menu
 Enter your choice:
-Profile saved successfully.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
+--- Job Postings ---
+Title: Software Developer
+Employer: TechCorp Inc
+Location: San Francisco, CA
+Salary: $120000/year
+Posted by: MyUser
+Description: Build amazing web applications using modern technologies
+------------------------------
+--- Job Search/Internship Menu ---
+1. Post a Job/Internship
+2. Browse Jobs/Internships
+3. Back to Main Menu
 Enter your choice:
 1. Create/Edit My Profile
 2. View My Profile
@@ -82,206 +72,6 @@ You have logged out.
 Welcome to InCollege!
 1. Log In
 2. Create New Account
-Enter your choice:
-Enter a username (max 20 chars, no spaces).
-Username:
-Password requirements:
-- 8 to 12 characters
-- At least one uppercase letter (A-Z)
-- At least one digit (0-9)
-- At least one special character (!@#$... etc.)
-Please enter your password:
-Account created successfully.
-Welcome to InCollege!
-1. Log In
-2. Create New Account
-Enter your choice:
-Please enter your username:
-Please enter your password:
-You have successfully logged in.
-Welcome, testuser3!
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Learn a New Skill
-8. Log Out
-Enter your choice:
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
-Enter your choice:
-=== Basic Information ===
-Enter First Name (required):
-Enter Last Name (required):
-Enter University/College (required):
-Enter Major (required):
-Enter About Me (optional, press enter to skip):
-Basic information updated.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
-Enter your choice:
-Invalid choice.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
-Enter your choice:
-=== Experience (up to 3 entries) ===
-How many experience entries to add (1-3)?
-=== Experience Entry 1 ===
-Enter Job Title:
-Enter Company/Organization:
-Enter Dates (e.g. Summer 2024):
-Enter Description (optional):
-Experience information updated.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
-Enter your choice:
-Profile saved successfully.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
-Enter your choice:
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Learn a New Skill
-8. Log Out
-Enter your choice:
-Enter the full name of the person you are looking for:
---- Found User Profile ---
-Name: John Doe
-University: University of South Florida
-Major: Computer Science
-Graduation Year: 2025
-About Me: I am a computer science student passionate about software development.
-Experience:
-  Title: Software Developer Intern
-  Company: TechCorp Inc
-  Dates: Summer 2024
-  Description: Developed web applications using React and Node.js
-Education: None
--------------------------
-1. Send Connection Request
-2. Back to Main Menu
-Enter your choice:
-Connection request sent to John Doe.
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Learn a New Skill
-8. Log Out
-Enter your choice:
-You have logged out.
-Welcome to InCollege!
-1. Log In
-2. Create New Account
-Enter your choice:
-Please enter your username:
-Please enter your password:
-You have successfully logged in.
-Welcome, testuser2!
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Learn a New Skill
-8. Log Out
-Enter your choice:
---- Pending Connection Requests ---
-Request from: Jane Smith
-  University: University of Florida
-  Major: Computer Science
-1. Accept
-2. Reject
-Enter your choice:
-Connection request from testuser3 accepted.
------------------------------------
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Learn a New Skill
-8. Log Out
-Enter your choice:
---- My Network ---
-- Jane Smith
-  University: University of Florida, Major: Computer Science
--------------------
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Learn a New Skill
-8. Log Out
-Enter your choice:
-You have logged out.
-Welcome to InCollege!
-1. Log In
-2. Create New Account
-Enter your choice:
-Please enter your username:
-Please enter your password:
-You have successfully logged in.
-Welcome, testuser3!
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Learn a New Skill
-8. Log Out
-Enter your choice:
---- Pending Connection Requests ---
-You have no pending connection requests at this time.
------------------------------------
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Learn a New Skill
-8. Log Out
-Enter your choice:
---- My Network ---
-- John Doe
-  University: University of South Florida, Major: Computer Science
--------------------
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Learn a New Skill
-8. Log Out
 Enter your choice:
 End of file reached
+Invalid choice. Please try again.
