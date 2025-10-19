@@ -1,0 +1,15 @@
+2
+EdgeTest1
+Valid55!
+1
+EdgeTest1
+Valid55!
+3
+1
+Database Administrator
+Manage and optimize PostgreSQL databases ensuring high availability and performance. Implement backup strategies monitor query performance and maintain security protocols for enterprise applications.
+Database Co
+Seattle, WA
+$110000
+3
+8

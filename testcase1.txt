@@ -1,0 +1,15 @@
+2
+TestUser1
+Pass123!
+1
+TestUser1
+Pass123!
+3
+1
+Software Engineer
+Develop scalable backend systems using Python and Django framework
+Tech Solutions LLC
+New York, NY
+$95000/year
+3
+8

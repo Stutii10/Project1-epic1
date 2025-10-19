@@ -1,0 +1,15 @@
+2
+BadPost1
+Valid88$
+1
+BadPost1
+Valid88$
+3
+1
+
+This is a job description but no title was provided
+Some Company
+Chicago, IL
+$50000
+3
+8
