@@ -1,0 +1,12 @@
+TC1: Complete job posting with all fields
+TC2: Job posting with salary as NONE
+TC3: Job posting with empty salary field
+TC4: Missing job title validation test
+TC5: Missing job description validation test
+TC6: Missing employer name validation test
+TC7: Missing location field validation test
+TC8: Description exactly 200 characters long
+TC9: Description over 200 characters
+TC10: Post multiple jobs then browse
+TC11: Special characters in job fields
+TC12: Maximum length fields truncation test
