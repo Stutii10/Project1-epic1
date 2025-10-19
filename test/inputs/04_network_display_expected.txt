@@ -1,3 +1,0 @@
-alice|bob|A
-carol|bob|R
-dave|bob|P

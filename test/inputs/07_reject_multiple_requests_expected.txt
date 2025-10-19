@@ -1,2 +1,0 @@
-alice|bob|R
-carol|bob|R
