@@ -1,15 +1,40 @@
 2
-BadPost4
-Test999#
+User7
+Browse7!
 1
-BadPost4
-Test999#
+User7
+Browse7!
 3
 1
-Cloud Architect
-Design and implement cloud infrastructure on AWS and Azure
-Cloud Systems LLC
-
-$130000/year
+Mobile Developer
+Build iOS and Android apps
+AppStudio
+Miami, FL
+$105000
+1
+UI/UX Designer
+Design user interfaces and experiences
+DesignHub
+Portland, OR
+$90000
+1
+Database Admin
+Manage and optimize databases
+DataSafe
+Denver, CO
+$98000
+2
+1
+2
+0
+2
+2
+2
+0
+2
 3
+2
+0
+3
+4
 8

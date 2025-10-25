@@ -1,15 +1,20 @@
 2
-EdgeTest2
-Pass777$
+User9
+NoSal99!
 1
-EdgeTest2
-Pass777$
+User9
+NoSal99!
 3
 1
-Senior DevOps Engineer
-Lead DevOps initiatives implementing CI/CD pipelines using Jenkins Docker Kubernetes and Terraform. Automate infrastructure provisioning monitor system performance troubleshoot production issues collaborate with development teams to optimize deployment processes and ensure system reliability and scalability across multiple cloud platforms including AWS Azure and GCP.
-DevOps Company
-Denver, CO
-$125000/year
+Intern Position
+Summer internship opportunity
+StartupLife
+Remote
+NONE
+2
+1
+1
+0
 3
+4
 8

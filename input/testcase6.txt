@@ -1,15 +1,20 @@
 2
-BadPost3
-Pass111!
+User6
+View123!
 1
-BadPost3
-Pass111!
+User6
+View123!
 3
 1
-UX Designer
-Create beautiful user interfaces and conduct user research
-
-Austin, TX
-$75000
+Product Manager
+Define product roadmap and features
+InnovateCo
+Los Angeles, CA
+$130000
+2
+1
+2
+0
 3
+4
 8

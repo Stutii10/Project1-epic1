@@ -1,15 +1,40 @@
 2
-BadPost1
-Valid88$
+User4
+Multi88!
 1
-BadPost1
-Valid88$
+User4
+Multi88!
 3
 1
-
-This is a job description but no title was provided
-Some Company
-Chicago, IL
-$50000
+Backend Developer
+Design APIs and microservices
+StartupXYZ
+Remote
+$110000
+1
+Frontend Developer
+Build responsive user interfaces
+WebCo
+Austin, TX
+$95000
+1
+DevOps Engineer
+Manage cloud infrastructure
+CloudTech
+Seattle, WA
+$115000
+2
+1
+1
+0
+2
+2
+1
+0
+2
 3
+1
+0
+3
+4
 8

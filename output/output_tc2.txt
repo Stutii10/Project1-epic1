@@ -10,6 +10,7 @@ Password requirements:
 - At least one digit (0-9)
 - At least one special character (!@#$... etc.)
 Please enter your password:
+Please enter your password:
 Account created successfully.
 Welcome to InCollege!
 1. Log In
@@ -18,7 +19,7 @@ Enter your choice:
 Please enter your username:
 Please enter your password:
 You have successfully logged in.
-Welcome, JobPoster!
+Welcome, User2!
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -31,20 +32,15 @@ Enter your choice:
 --- Job Search/Internship Menu ---
 1. Post a Job/Internship
 2. Browse Jobs/Internships
-3. Back to Main Menu
+3. View My Applications
+4. Back to Main Menu
 Enter your choice:
---- Post a New Job/Internship ---
-Enter Job Title:
-Enter Description (max 200 chars):
-Enter Employer Name:
-Enter Location:
-Enter Salary (optional, enter 'NONE' to skip):
-Job posted successfully!
-----------------------------------
+No job postings yet.
 --- Job Search/Internship Menu ---
 1. Post a Job/Internship
 2. Browse Jobs/Internships
-3. Back to Main Menu
+3. View My Applications
+4. Back to Main Menu
 Enter your choice:
 1. Create/Edit My Profile
 2. View My Profile
