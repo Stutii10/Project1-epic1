@@ -1,11 +1,32 @@
+2
+TestUser
+TestPass1!
 1
 TestUser
 TestPass1!
 3
+1
+Software Intern
+Develop tools for internal testing and automation.
+TechCorp
+New York, NY
+$25/hour
+1
+Data Analyst
+Analyze datasets and generate reports.
+DataSolutions
+Remote
+$30/hour
+1
+Marketing Specialist
+Create marketing campaigns.
+BrandInc
+Chicago, IL
+$50000
 2
 1
 1
-0
+2
 3
 4
 8
