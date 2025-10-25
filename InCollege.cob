@@ -1,11 +1,12 @@
 *> =======================================================
-*> InCollege - Complete System with Connection Requests + Job Posting
+*> InCollege - Week 7: Browse Jobs & Applications with Report
 *> Inputs  : InCollege-Input.txt
 *> Outputs : InCollege-Output.txt
 *> Accounts: Accounts.dat (username|password per line)
 *> Profiles: Profiles.dat (user profile data)
 *> Connections: Connections.dat (sender|recipient|status per line)
 *> Job Postings: JobPostings.dat (poster|title|description|employer|location|salary)
+*> Applications: Applications.dat (username|jobID per line)
 *> =======================================================
 
  IDENTIFICATION DIVISION.
@@ -38,6 +39,10 @@
          ASSIGN TO 'JobPostings.dat'
          ORGANIZATION IS LINE SEQUENTIAL
          FILE STATUS IS FS-JOBS.
+     SELECT APPLICATIONS-FILE
+         ASSIGN TO 'Applications.dat'
+         ORGANIZATION IS LINE SEQUENTIAL
+         FILE STATUS IS FS-APPS.
 
  DATA DIVISION.
  FILE SECTION.
@@ -59,6 +64,9 @@
  FD  JOBS-FILE.
  01  Job-Line                       PIC X(400).
 
+ FD  APPLICATIONS-FILE.
+ 01  Application-Line               PIC X(80).
+
  WORKING-STORAGE SECTION.
  01 Target-Username                 PIC X(20).
 
@@ -69,11 +77,13 @@
  01  FS-PROF                        PIC XX VALUE '00'.
  01  FS-CONN                        PIC XX VALUE '00'.
  01  FS-JOBS                        PIC XX VALUE '00'.
+ 01  FS-APPS                        PIC XX VALUE '00'.
  01  EOF-IN                         PIC X VALUE 'N'.
  01  ACCT-EOF                       PIC X VALUE 'N'.
  01  PROF-EOF                       PIC X VALUE 'N'.
  01  CONN-EOF                       PIC X VALUE 'N'.
  01  JOB-EOF                        PIC X VALUE 'N'.
+ 01  APP-EOF                        PIC X VALUE 'N'.
 
  *> ------- Menu / input buffers -------
  01  UserChoice                     PIC 9.
@@ -129,7 +139,7 @@
      88  Connection-Is-Valid              VALUE 'Y'.
      88  Connection-Is-Invalid            VALUE 'N'.
 
- *> Special characters set (double the quote inside)
+ *> Special characters set
  01  Specials                       PIC X(40)
      VALUE '!@#$%^&*()-_=+[]{};:'',.<>/?'.
 
@@ -215,11 +225,40 @@
  01  Job-Location                   PIC X(60).
  01  Job-Salary                     PIC X(40).
 
+ *> ------- NEW: Job browsing and application structures -------
+ 01  Job-Count                      PIC 99 VALUE 0.
+ 01  Job-List.
+     05  Job-Entry OCCURS 99 TIMES.
+         10  Job-ID                 PIC 99.
+         10  Job-Poster             PIC X(20).
+         10  Job-Title-Store        PIC X(60).
+         10  Job-Description-Store  PIC X(200).
+         10  Job-Employer-Store     PIC X(60).
+         10  Job-Location-Store     PIC X(60).
+         10  Job-Salary-Store       PIC X(40).
+
+ 01  Selected-Job-Number            PIC 99.
+ 01  Job-Details-Choice             PIC X.
+
+ *> Application tracking
+ 01  Application-Count              PIC 99 VALUE 0.
+ 01  Applications.
+     05  Application OCCURS 99 TIMES.
+         10  App-Username           PIC X(20).
+         10  App-Job-ID             PIC 99.
+
+ 01  Already-Applied-Flag           PIC X VALUE 'N'.
+     88  Already-Applied                  VALUE 'Y'.
+     88  Not-Applied-Yet                  VALUE 'N'.
+
+ 01  User-App-Count                 PIC 99 VALUE 0.
+
  PROCEDURE DIVISION.
  Main.
      PERFORM Open-Files
      PERFORM Load-Accounts-From-Disk
      PERFORM Load-Connections-From-Disk
+     PERFORM Load-Applications-From-Disk
 
      *> Main program loop to allow returning to login screen
      PERFORM UNTIL EOF-IN = "Y"
@@ -346,6 +385,16 @@
      END-IF
      CLOSE JOBS-FILE
      OPEN EXTEND JOBS-FILE
+
+     *> NEW: Try to open applications file for INPUT; if missing, create it.
+     OPEN INPUT  APPLICATIONS-FILE
+     IF FS-APPS = "35"
+         OPEN OUTPUT APPLICATIONS-FILE
+         CLOSE APPLICATIONS-FILE
+         OPEN INPUT APPLICATIONS-FILE
+     END-IF
+     CLOSE APPLICATIONS-FILE
+     OPEN EXTEND APPLICATIONS-FILE
      .
 
  Close-Files.
@@ -355,6 +404,7 @@
      CLOSE PROFILES-FILE
      CLOSE CONNECTIONS-FILE
      CLOSE JOBS-FILE
+     CLOSE APPLICATIONS-FILE
      .
 
  *> Display to screen AND write to output file
@@ -389,876 +439,6 @@
      MOVE "1. Log In" TO WS-MSG
      PERFORM OUT-MSG
      MOVE "2. Create New Account" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "Enter your choice: " TO WS-MSG
-     PERFORM OUT-MSG
-     .
-
- *> -----------------------------
- *> LOGIN
- *> -----------------------------
- Do-Login.
-     IF Account-Count = 0
-         MOVE "No accounts exist. Create an account first." TO WS-MSG
-         PERFORM OUT-MSG
-         GOBACK
-     END-IF
-
-     SET Pass-Is-Invalid TO TRUE
-     PERFORM WITH TEST AFTER UNTIL Pass-Is-Valid OR EOF-IN = "Y"
-         MOVE "Please enter your username: " TO WS-MSG
-         PERFORM OUT-MSG
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN = "Y"
-             EXIT PERFORM
-         END-IF
-         MOVE FUNCTION TRIM(InLine) TO UserName
-
-         MOVE "Please enter your password: " TO WS-MSG
-         PERFORM OUT-MSG
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN = "Y"
-             EXIT PERFORM
-         END-IF
-         MOVE FUNCTION TRIM(InLine) TO UserPassword
-
-         PERFORM Check-Credentials
-         IF Pass-Is-Valid
-             MOVE "You have successfully logged in." TO WS-MSG
-             PERFORM OUT-MSG
-             MOVE SPACES TO WS-MSG
-             STRING "Welcome, " DELIMITED BY SIZE
-                    FUNCTION TRIM(UserName) DELIMITED BY SIZE
-                    "!" DELIMITED BY SIZE
-                    INTO WS-MSG
-             PERFORM OUT-MSG
-             SET USER-LOGGED-IN TO TRUE
-             EXIT PERFORM
-         ELSE
-             MOVE "Incorrect username/password. Try again" TO WS-MSG
-             PERFORM OUT-MSG
-         END-IF
-     END-PERFORM
-
-     IF EOF-IN = "Y" AND NOT Pass-Is-Valid
-         MOVE "N" TO WS-LOGGED-IN
-     END-IF
-     .
-
- Check-Credentials.
-     SET Pass-Is-Invalid TO TRUE
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Account-Count
-         IF UserName = Acc-Username(I) AND
-            UserPassword = Acc-Password(I)
-             SET Pass-Is-Valid TO TRUE
-             EXIT PERFORM
-         END-IF
-     END-PERFORM
-     .
-
- *> -----------------------------
- *> REGISTRATION
- *> -----------------------------
- Do-Registration.
-     IF Account-Count >= 5
-         MOVE "Max account reached. Please come back later" TO WS-MSG
-         PERFORM OUT-MSG
-         EXIT PARAGRAPH
-     END-IF
-
-     SET Username-Exists TO TRUE
-
-     *> --- Username step ---
-     PERFORM UNTIL Username-Not-Exists
-         MOVE "Enter a username (max 20 chars, no spaces)." TO WS-MSG
-         PERFORM OUT-MSG
-         MOVE "Username: " TO WS-MSG
-         PERFORM OUT-MSG
-
-         PERFORM READ-NEXT-INPUT
-         MOVE FUNCTION TRIM(InLine) TO UserName
-
-         PERFORM Compute-Name-Length
-         IF NameLen = 0
-             MOVE "Username cannot be empty." TO WS-MSG
-             PERFORM OUT-MSG
-         ELSE
-             PERFORM Check-Username-Exists
-             IF Username-Exists
-                 MOVE "Username is already taken. Try another." TO WS-MSG
-                 PERFORM OUT-MSG
-             ELSE
-                 SET Username-Not-Exists TO TRUE
-             END-IF
-         END-IF
-     END-PERFORM
-
-     *> --- Password step ---
-     MOVE "Password requirements:" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "- 8 to 12 characters" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "- At least one uppercase letter (A-Z)" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "- At least one digit (0-9)" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "- At least one special character (!@#$... etc.)" TO WS-MSG
-     PERFORM OUT-MSG
-
-     SET Pass-Is-Invalid TO TRUE
-     PERFORM UNTIL Pass-Is-Valid
-         MOVE "Please enter your password: " TO WS-MSG
-         PERFORM OUT-MSG
-         PERFORM READ-NEXT-INPUT
-         MOVE FUNCTION TRIM(InLine) TO UserPassword
-
-         PERFORM Validate-Password
-         IF Pass-Is-Invalid
-             MOVE "It doesn't meet requirements, try again." TO WS-MSG
-             PERFORM OUT-MSG
-         END-IF
-     END-PERFORM
-
-     *> --- Save in-memory ---
-     ADD 1 TO Account-Count
-     MOVE UserName     TO Acc-Username(Account-Count)
-     MOVE UserPassword TO Acc-Password(Account-Count)
-
-     *> --- Persist (already OPEN EXTEND) ---
-     PERFORM Append-Account-To-Disk
-
-     MOVE "Account created successfully." TO WS-MSG
-     PERFORM OUT-MSG
-     EXIT PARAGRAPH
-     .
-
- *> -----------------------------
- *> MAIN APPLICATION MENUS
- *> -----------------------------
- Show-Main-Menu.
-     MOVE "1. Create/Edit My Profile" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "2. View My Profile" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "3. Search for a job" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "4. Find someone you know" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "5. View My Pending Connection Requests" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "6. View My Network" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "7. Learn a New Skill" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "8. Log Out" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "Enter your choice: " TO WS-MSG
-     PERFORM OUT-MSG
-     .
-
- J-Search-Loop.
-     MOVE SPACES TO WS-MENU-SELECTION
-     PERFORM UNTIL WS-MENU-SELECTION = "3" OR EOF-IN = "Y"
-         PERFORM J-Search-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     PERFORM Post-Job-Flow
-                 WHEN "2"
-                     PERFORM Browse-Jobs
-                 WHEN "3"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
-
- Find-Someone.
-     MOVE "Enter the full name of the person you are looking for: " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     IF EOF-IN NOT = "Y"
-         MOVE FUNCTION TRIM(InLine) TO Search-Name
-         PERFORM Perform-Search
-         IF User-Found
-             PERFORM Display-Search-Profile
-             *> Add connection request option after displaying profile
-             PERFORM Connection-Options-Menu
-         ELSE
-             MOVE "No one by that name could be found." TO WS-MSG
-             PERFORM OUT-MSG
-         END-IF
-     END-IF
-     .
-
- Connection-Options-Menu.
-     PERFORM UNTIL WS-MENU-SELECTION = "2" OR EOF-IN = "Y"
-         MOVE "1. Send Connection Request" TO WS-MSG
-         PERFORM OUT-MSG
-         MOVE "2. Back to Main Menu" TO WS-MSG
-         PERFORM OUT-MSG
-         MOVE "Enter your choice: " TO WS-MSG
-         PERFORM OUT-MSG
-
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     PERFORM Send-Connection-Request
-                     MOVE "2" TO WS-MENU-SELECTION
-                 WHEN "2"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
-
- Send-Connection-Request.
-     *> Validate the connection request
-     PERFORM Validate-Connection-Request
-     IF Connection-Is-Valid
-         *> Add to in-memory connections array
-         ADD 1 TO Connection-Count
-         MOVE UserName TO Conn-Sender(Connection-Count)
-         MOVE Search-Username TO Conn-Recipient(Connection-Count)
-         MOVE "P" TO Conn-Status(Connection-Count)
-         *> Persist to file
-         PERFORM Append-Connection-To-Disk
-
-         MOVE SPACES TO WS-MSG
-         STRING "Connection request sent to " DELIMITED BY SIZE
-                FUNCTION TRIM(Search-First-Name) DELIMITED BY SIZE
-                " " DELIMITED BY SIZE
-                FUNCTION TRIM(Search-Last-Name) DELIMITED BY SIZE
-                "." DELIMITED BY SIZE
-                INTO WS-MSG
-         PERFORM OUT-MSG
-     END-IF
-     .
-
- Validate-Connection-Request.
-     SET Connection-Is-Valid TO TRUE
-
-     *> Check if trying to connect with yourself
-     IF UserName = Search-Username
-         MOVE "You cannot send a connection request to yourself." TO WS-MSG
-         PERFORM OUT-MSG
-         SET Connection-Is-Invalid TO TRUE
-         EXIT PARAGRAPH
-     END-IF
-
-     *> Check if connection already exists (either direction)
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
-         IF (Conn-Sender(I) = UserName AND
-             Conn-Recipient(I) = Search-Username) OR
-            (Conn-Sender(I) = Search-Username AND
-             Conn-Recipient(I) = UserName)
-             IF Conn-Sender(I) = UserName
-                 MOVE "You have already sent a connection request to this user." TO WS-MSG
-             ELSE
-                 MOVE "This user has already sent you a connection request." TO WS-MSG
-             END-IF
-             PERFORM OUT-MSG
-             SET Connection-Is-Invalid TO TRUE
-             EXIT PERFORM
-         END-IF
-     END-PERFORM
-     .
-
- *> ========================================
- *> NEW FEATURE: View Pending Requests with Accept/Reject
- *> ========================================
- View-Pending-Requests-With-Actions.
-     MOVE "--- Pending Connection Requests ---" TO WS-MSG
-     PERFORM OUT-MSG
-
-     *> Build list of pending requests for current user
-     MOVE 0 TO Pending-Request-Count
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
-         IF Conn-Recipient(I) = UserName AND Conn-Status(I) = "P"
-             ADD 1 TO Pending-Request-Count
-             MOVE I TO Pend-Index(Pending-Request-Count)
-             MOVE Conn-Sender(I) TO Pend-Sender(Pending-Request-Count)
-         END-IF
-     END-PERFORM
-
-     IF Pending-Request-Count = 0
-         MOVE "You have no pending connection requests at this time." TO WS-MSG
-         PERFORM OUT-MSG
-     ELSE
-         *> Display each request with Accept/Reject options
-         PERFORM VARYING J FROM 1 BY 1 UNTIL J > Pending-Request-Count
-             MOVE Pend-Index(J) TO I
-             PERFORM Display-Pending-Request-Details
-             PERFORM Handle-Request-Action
-             IF EOF-IN = "Y"
-                 EXIT PERFORM
-             END-IF
-         END-PERFORM
-     END-IF
-
-     MOVE "-----------------------------------" TO WS-MSG
-     PERFORM OUT-MSG
-     .
-
- Display-Pending-Request-Details.
-     *> Find and display the profile of the sender
-     PERFORM Find-Profile-By-Connection-Sender
-     IF Profile-Exists
-         MOVE SPACES TO WS-MSG
-         STRING "Request from: " DELIMITED BY SIZE
-                FUNCTION TRIM(Temp-First-Name) DELIMITED BY SIZE
-                " " DELIMITED BY SIZE
-                FUNCTION TRIM(Temp-Last-Name) DELIMITED BY SIZE
-                INTO WS-MSG
-         PERFORM OUT-MSG
-         MOVE SPACES TO WS-MSG
-         STRING "  University: " DELIMITED BY SIZE
-                FUNCTION TRIM(Temp-University) DELIMITED BY SIZE
-                INTO WS-MSG
-         PERFORM OUT-MSG
-         MOVE SPACES TO WS-MSG
-         STRING "  Major: " DELIMITED BY SIZE
-                FUNCTION TRIM(Temp-Major) DELIMITED BY SIZE
-                INTO WS-MSG
-         PERFORM OUT-MSG
-     ELSE
-         MOVE SPACES TO WS-MSG
-         STRING "Request from: " DELIMITED BY SIZE
-                FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
-                INTO WS-MSG
-         PERFORM OUT-MSG
-     END-IF
-     .
-
- Handle-Request-Action.
-     PERFORM UNTIL WS-MENU-SELECTION = "1" OR
-                   WS-MENU-SELECTION = "2" OR
-                   EOF-IN = "Y"
-         MOVE "1. Accept" TO WS-MSG
-         PERFORM OUT-MSG
-         MOVE "2. Reject" TO WS-MSG
-         PERFORM OUT-MSG
-         MOVE "Enter your choice: " TO WS-MSG
-         PERFORM OUT-MSG
-
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     PERFORM Accept-Connection-Request
-                 WHEN "2"
-                     PERFORM Reject-Connection-Request
-                 WHEN OTHER
-                     MOVE "Invalid choice. Please select 1 or 2." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     MOVE SPACES TO WS-MENU-SELECTION
-     .
-
- Accept-Connection-Request.
-     *> Update status in memory
-     MOVE "A" TO Conn-Status(I)
-
-     *> Rewrite the entire connections file
-     PERFORM Rewrite-Connections-File
-
-     MOVE SPACES TO WS-MSG
-     STRING "Connection request from " DELIMITED BY SIZE
-            FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
-            " accepted." DELIMITED BY SIZE
-            INTO WS-MSG
-     PERFORM OUT-MSG
-     .
-
- Reject-Connection-Request.
-     *> Update status in memory
-     MOVE "R" TO Conn-Status(I)
-
-     *> Rewrite the entire connections file
-     PERFORM Rewrite-Connections-File
-
-     MOVE SPACES TO WS-MSG
-     STRING "Connection request from " DELIMITED BY SIZE
-            FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
-            " rejected." DELIMITED BY SIZE
-            INTO WS-MSG
-     PERFORM OUT-MSG
-     .
-
- *> ========================================
- *> NEW FEATURE: View My Network
- *> ========================================
- View-My-Network.
-     MOVE "--- My Network ---" TO WS-MSG
-     PERFORM OUT-MSG
-
-     MOVE 0 TO Has-Entries
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
-         IF Conn-Status(I) = "A"
-             IF Conn-Sender(I) = UserName OR Conn-Recipient(I) = UserName
-                 ADD 1 TO Has-Entries
-                 PERFORM Display-Network-Connection
-             END-IF
-         END-IF
-     END-PERFORM
-
-     IF Has-Entries = 0
-         MOVE "You have no connections yet." TO WS-MSG
-         PERFORM OUT-MSG
-     END-IF
-
-     MOVE "-------------------" TO WS-MSG
-     PERFORM OUT-MSG
-     .
-
- Display-Network-Connection.
-     *> Determine which user is the connection
-     IF Conn-Sender(I) = UserName
-         MOVE Conn-Recipient(I) TO Target-Username
-         PERFORM Find-Profile-For-Network
-     ELSE
-         MOVE Conn-Sender(I) TO Target-Username
-         PERFORM Find-Profile-For-Network
-     END-IF
-
-     IF Profile-Exists
-         MOVE SPACES TO WS-MSG
-         STRING "- " DELIMITED BY SIZE
-                FUNCTION TRIM(Temp-First-Name) DELIMITED BY SIZE
-                " " DELIMITED BY SIZE
-                FUNCTION TRIM(Temp-Last-Name) DELIMITED BY SIZE
-                INTO WS-MSG
-         PERFORM OUT-MSG
-         MOVE SPACES TO WS-MSG
-         STRING "  University: " DELIMITED BY SIZE
-                FUNCTION TRIM(Temp-University) DELIMITED BY SIZE
-                ", Major: " DELIMITED BY SIZE
-                FUNCTION TRIM(Temp-Major) DELIMITED BY SIZE
-                INTO WS-MSG
-         PERFORM OUT-MSG
-     ELSE
-         IF Conn-Sender(I) = UserName
-             MOVE SPACES TO WS-MSG
-             STRING "- " DELIMITED BY SIZE
-                    FUNCTION TRIM(Conn-Recipient(I)) DELIMITED BY SIZE
-                    INTO WS-MSG
-             PERFORM OUT-MSG
-         ELSE
-             MOVE SPACES TO WS-MSG
-             STRING "- " DELIMITED BY SIZE
-                    FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
-                    INTO WS-MSG
-             PERFORM OUT-MSG
-         END-IF
-     END-IF
-     .
-
- Find-Profile-For-Network.
-     SET Profile-Not-Exists TO TRUE
-     CLOSE PROFILES-FILE
-     OPEN INPUT PROFILES-FILE
-     MOVE 'N' TO PROF-EOF
-
-     PERFORM UNTIL PROF-EOF = 'Y' OR Profile-Exists
-         READ PROFILES-FILE
-             AT END
-                 MOVE 'Y' TO PROF-EOF
-             NOT AT END
-                 IF Profile-Line(1:20) = Target-Username
-                     SET Profile-Exists TO TRUE
-                     MOVE Profile-Line(21:30) TO Temp-First-Name
-                     MOVE Profile-Line(51:30) TO Temp-Last-Name
-                     MOVE Profile-Line(81:50) TO Temp-University
-                     MOVE Profile-Line(131:40) TO Temp-Major
-                 END-IF
-         END-READ
-     END-PERFORM
-
-     CLOSE PROFILES-FILE
-     OPEN EXTEND PROFILES-FILE
-     .
-
- Rewrite-Connections-File.
-     *> Close and reopen in OUTPUT mode to clear the file
-     CLOSE CONNECTIONS-FILE
-     OPEN OUTPUT CONNECTIONS-FILE
-
-     *> Write all connections with their current status
-     PERFORM VARYING J FROM 1 BY 1 UNTIL J > Connection-Count
-         IF Conn-Sender(J) NOT = SPACES AND
-            Conn-Recipient(J) NOT = SPACES
-             MOVE ALL SPACES TO Connection-Line
-             STRING
-                 FUNCTION TRIM(Conn-Sender(J)) DELIMITED BY SIZE
-                 "|" DELIMITED BY SIZE
-                 FUNCTION TRIM(Conn-Recipient(J)) DELIMITED BY SIZE
-                 "|" DELIMITED BY SIZE
-                 Conn-Status(J) DELIMITED BY SIZE
-                 INTO Connection-Line
-             END-STRING
-             WRITE Connection-Line
-         END-IF
-     END-PERFORM
-
-     CLOSE CONNECTIONS-FILE
-     OPEN EXTEND CONNECTIONS-FILE
-     .
-
- Find-Profile-By-Connection-Sender.
-     SET Profile-Not-Exists TO TRUE
-     CLOSE PROFILES-FILE
-     OPEN INPUT PROFILES-FILE
-     MOVE 'N' TO PROF-EOF
-
-     PERFORM UNTIL PROF-EOF = 'Y' OR Profile-Exists
-         READ PROFILES-FILE
-             AT END
-                 MOVE 'Y' TO PROF-EOF
-             NOT AT END
-                 IF Profile-Line(1:20) = Conn-Sender(I)
-                     SET Profile-Exists TO TRUE
-                     MOVE Profile-Line(21:30) TO Temp-First-Name
-                     MOVE Profile-Line(51:30) TO Temp-Last-Name
-                     MOVE Profile-Line(81:50) TO Temp-University
-                     MOVE Profile-Line(131:40) TO Temp-Major
-                 END-IF
-         END-READ
-     END-PERFORM
-
-     CLOSE PROFILES-FILE
-     OPEN EXTEND PROFILES-FILE
-     .
-
- *> ================================
- *> Job Search/Internship menu
- *> ================================
- J-Search-Menu.
-     MOVE "--- Job Search/Internship Menu ---" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "1. Post a Job/Internship" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "2. Browse Jobs/Internships" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "3. Back to Main Menu" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "Enter your choice: " TO WS-MSG
-     PERFORM OUT-MSG
-     .
-
- *> ================================
- *> Post a Job/Internship Flow
- *> ================================
- Post-Job-Flow.
-     MOVE "--- Post a New Job/Internship ---" TO WS-MSG
-     PERFORM OUT-MSG
-
-     *> Job Title (required)
-     MOVE "Enter Job Title: " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Job-Title
-
-     *> Description (required, max 200)
-     MOVE "Enter Description (max 200 chars): " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Job-Description
-     IF FUNCTION LENGTH(Job-Description) > 200
-         MOVE Job-Description(1:200) TO Job-Description
-     END-IF
-
-     *> Employer (required)
-     MOVE "Enter Employer Name: " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Job-Employer
-
-     *> Location (required)
-     MOVE "Enter Location: " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Job-Location
-
-     *> Salary (optional; 'NONE' allowed)
-     MOVE "Enter Salary (optional, enter 'NONE' to skip): " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Job-Salary
-     IF FUNCTION LENGTH(FUNCTION TRIM(Job-Salary)) = 0
-           MOVE "NONE" TO Job-Salary
-       END-IF
-
-
-     *> Basic required-field validation
-     IF Job-Title = SPACES OR
-        Job-Description = SPACES OR
-        Job-Employer = SPACES OR
-        Job-Location = SPACES
-         MOVE "Missing required field(s). Job NOT posted." TO WS-MSG
-         PERFORM OUT-MSG
-         EXIT PARAGRAPH
-     END-IF
-
-     *> Persist to disk (already open in EXTEND)
-     PERFORM Append-Job-To-Disk
-
-     MOVE "Job posted successfully!" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "----------------------------------" TO WS-MSG
-     PERFORM OUT-MSG
-     .
-
- Append-Job-To-Disk.
-     *> Record format: poster|title|description|employer|location|salary
-     MOVE ALL SPACES TO Job-Line
-     STRING
-         FUNCTION TRIM(UserName)        DELIMITED BY SIZE
-         "|"                            DELIMITED BY SIZE
-         FUNCTION TRIM(Job-Title)       DELIMITED BY SIZE
-         "|"                            DELIMITED BY SIZE
-         FUNCTION TRIM(Job-Description) DELIMITED BY SIZE
-         "|"                            DELIMITED BY SIZE
-         FUNCTION TRIM(Job-Employer)    DELIMITED BY SIZE
-         "|"                            DELIMITED BY SIZE
-         FUNCTION TRIM(Job-Location)    DELIMITED BY SIZE
-         "|"                            DELIMITED BY SIZE
-         FUNCTION TRIM(Job-Salary)      DELIMITED BY SIZE
-         INTO Job-Line
-     END-STRING
-     WRITE Job-Line
-     .
-
- *> ===============================================================
- *> Skill menus (stubs)
- *> ===============================================================
- Skill-Loop.
-     PERFORM UNTIL WS-MENU-SELECTION = "5" OR EOF-IN = "Y"
-         PERFORM Skill-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     PERFORM Web-Dev-Loop
-                 WHEN "2"
-                     PERFORM Deep-Learning-Loop
-                 WHEN "3"
-                     PERFORM Interview-Loop
-                 WHEN "4"
-                     PERFORM Resume-Loop
-                 WHEN "5"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
-
- Web-Dev-Loop.
-     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
-         PERFORM Web-Dev-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
-
- Deep-Learning-Loop.
-     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
-         PERFORM Deep-Learning-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
-
- Interview-Loop.
-     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
-         PERFORM Interview-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
-
- Resume-Loop.
-     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
-         PERFORM Resume-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
-
- Profile-Loop.
-     PERFORM UNTIL WS-MENU-SELECTION = "5" OR EOF-IN = "Y"
-         PERFORM Profile-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     PERFORM Edit-Basic-Info
-                 WHEN "2"
-                     PERFORM Edit-Experience
-                 WHEN "3"
-                     PERFORM Edit-Education
-                 WHEN "4"
-                     PERFORM Save-Profile
-                 WHEN "5"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
-
- *> -----------------------------
- *> MENU DISPLAY PARAGRAPHS
- *> -----------------------------
- Skill-Menu.
-     MOVE "1. Learn Web Development" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "2. Learn Deep Learning" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "3. Learn How To Crack Interview Questions" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "4. Learn How To Optimize Your Resume" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "5. Return" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "Enter your choice: " TO WS-MSG
-     PERFORM OUT-MSG
-     .
-
- Web-Dev-Menu.
-    MOVE "Web Development – Quick Tips" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Start with HTML & CSS basics (layout, flexbox, forms)" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Learn JavaScript fundamentals (DOM, events, fetch)" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Build a simple portfolio site with 2–3 pages" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Use Git/GitHub for version control" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "1. Return" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "Enter your choice: " TO WS-MSG
-    PERFORM OUT-MSG
-    .
-
- Deep-Learning-Menu.
-    MOVE "Deep Learning – Quick Path" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Brush up linear algebra, calculus, and probability" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Practice Python + NumPy; learn tensors and autodiff" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Train a small model (MNIST/CIFAR) and tune learning rate" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Read training logs; avoid overfitting with regularization" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "1. Return" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "Enter your choice: " TO WS-MSG
-    PERFORM OUT-MSG
-    .
-
- Interview-Menu.
-    MOVE "Interview Prep – Checklist" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Review Big-O and core data structures/algorithms" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Solve 1–2 practice problems daily (arrays, strings, graphs)" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Prepare STAR stories for behavioral questions" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Do mock interviews and reflect on feedback" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "1. Return" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "Enter your choice: " TO WS-MSG
-    PERFORM OUT-MSG
-    .
-
-
- Resume-Menu.
-    MOVE "Resume Optimization – Tips" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Keep it to one page (students/early career)" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Use action verbs and quantify impact (e.g., 'reduced build time 30%')" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Tailor bullets to the job description keywords" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "• Put most relevant projects/experience at the top" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "1. Return" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "Enter your choice: " TO WS-MSG
-    PERFORM OUT-MSG
-    .
-
- Profile-Menu.
-     MOVE "1. Edit Basic Information" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "2. Edit Experience" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "3. Edit Education" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "4. Save Profile" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "5. Return" TO WS-MSG
      PERFORM OUT-MSG
      MOVE "Enter your choice: " TO WS-MSG
      PERFORM OUT-MSG
@@ -1994,7 +1174,7 @@
      .
 
  *> -----------------------------
- *> Load accounts from disk at startup (no GOTO)
+ *> Load accounts from disk at startup
  *> -----------------------------
  Load-Accounts-From-Disk.
      CLOSE ACCOUNTS-FILE
@@ -2041,81 +1221,1195 @@
          MOVE "Max 5 accounts reached, cannot save new account." TO WS-MSG
          PERFORM OUT-MSG
      END-IF
+     .PERFORM OUT-MSG
      .
 
-*> ================================
-*> Browse Jobs / Internships
-*> ================================
-Browse-Jobs.
-    MOVE "--- Job Postings ---" TO WS-MSG
+ *> -----------------------------
+ *> LOGIN
+ *> -----------------------------
+ Do-Login.
+     IF Account-Count = 0
+         MOVE "No accounts exist. Create an account first." TO WS-MSG
+         PERFORM OUT-MSG
+         GOBACK
+     END-IF
+
+     SET Pass-Is-Invalid TO TRUE
+     PERFORM WITH TEST AFTER UNTIL Pass-Is-Valid OR EOF-IN = "Y"
+         MOVE "Please enter your username: " TO WS-MSG
+         PERFORM OUT-MSG
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN = "Y"
+             EXIT PERFORM
+         END-IF
+         MOVE FUNCTION TRIM(InLine) TO UserName
+
+         MOVE "Please enter your password: " TO WS-MSG
+         PERFORM OUT-MSG
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN = "Y"
+             EXIT PERFORM
+         END-IF
+         MOVE FUNCTION TRIM(InLine) TO UserPassword
+
+         PERFORM Check-Credentials
+         IF Pass-Is-Valid
+             MOVE "You have successfully logged in." TO WS-MSG
+             PERFORM OUT-MSG
+             MOVE SPACES TO WS-MSG
+             STRING "Welcome, " DELIMITED BY SIZE
+                    FUNCTION TRIM(UserName) DELIMITED BY SIZE
+                    "!" DELIMITED BY SIZE
+                    INTO WS-MSG
+             PERFORM OUT-MSG
+             SET USER-LOGGED-IN TO TRUE
+             EXIT PERFORM
+         ELSE
+             MOVE "Incorrect username/password. Try again" TO WS-MSG
+             PERFORM OUT-MSG
+         END-IF
+     END-PERFORM
+
+     IF EOF-IN = "Y" AND NOT Pass-Is-Valid
+         MOVE "N" TO WS-LOGGED-IN
+     END-IF
+     .
+
+ Check-Credentials.
+     SET Pass-Is-Invalid TO TRUE
+     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Account-Count
+         IF UserName = Acc-Username(I) AND
+            UserPassword = Acc-Password(I)
+             SET Pass-Is-Valid TO TRUE
+             EXIT PERFORM
+         END-IF
+     END-PERFORM
+     .
+
+ *> -----------------------------
+ *> REGISTRATION
+ *> -----------------------------
+ Do-Registration.
+     IF Account-Count >= 5
+         MOVE "Max account reached. Please come back later" TO WS-MSG
+         PERFORM OUT-MSG
+         EXIT PARAGRAPH
+     END-IF
+
+     SET Username-Exists TO TRUE
+
+     *> --- Username step ---
+     PERFORM UNTIL Username-Not-Exists
+         MOVE "Enter a username (max 20 chars, no spaces)." TO WS-MSG
+         PERFORM OUT-MSG
+         MOVE "Username: " TO WS-MSG
+         PERFORM OUT-MSG
+
+         PERFORM READ-NEXT-INPUT
+         MOVE FUNCTION TRIM(InLine) TO UserName
+
+         PERFORM Compute-Name-Length
+         IF NameLen = 0
+             MOVE "Username cannot be empty." TO WS-MSG
+             PERFORM OUT-MSG
+         ELSE
+             PERFORM Check-Username-Exists
+             IF Username-Exists
+                 MOVE "Username is already taken. Try another." TO WS-MSG
+                 PERFORM OUT-MSG
+             ELSE
+                 SET Username-Not-Exists TO TRUE
+             END-IF
+         END-IF
+     END-PERFORM
+
+     *> --- Password step ---
+     MOVE "Password requirements:" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "- 8 to 12 characters" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "- At least one uppercase letter (A-Z)" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "- At least one digit (0-9)" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "- At least one special character (!@#$... etc.)" TO WS-MSG
+     PERFORM OUT-MSG
+
+     SET Pass-Is-Invalid TO TRUE
+     PERFORM UNTIL Pass-Is-Valid
+         MOVE "Please enter your password: " TO WS-MSG
+         PERFORM OUT-MSG
+         PERFORM READ-NEXT-INPUT
+         MOVE FUNCTION TRIM(InLine) TO UserPassword
+
+         PERFORM Validate-Password
+         IF Pass-Is-Invalid
+             MOVE "It doesn't meet requirements, try again." TO WS-MSG
+             PERFORM OUT-MSG
+         END-IF
+     END-PERFORM
+
+     *> --- Save in-memory ---
+     ADD 1 TO Account-Count
+     MOVE UserName     TO Acc-Username(Account-Count)
+     MOVE UserPassword TO Acc-Password(Account-Count)
+
+     *> --- Persist (already OPEN EXTEND) ---
+     PERFORM Append-Account-To-Disk
+
+     MOVE "Account created successfully." TO WS-MSG
+     PERFORM OUT-MSG
+     EXIT PARAGRAPH
+     .
+
+ *> -----------------------------
+ *> MAIN APPLICATION MENUS
+ *> -----------------------------
+ Show-Main-Menu.
+     MOVE "1. Create/Edit My Profile" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "2. View My Profile" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "3. Search for a job" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "4. Find someone you know" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "5. View My Pending Connection Requests" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "6. View My Network" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "7. Learn a New Skill" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "8. Log Out" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "Enter your choice: " TO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ J-Search-Loop.
+     MOVE SPACES TO WS-MENU-SELECTION
+     PERFORM UNTIL WS-MENU-SELECTION = "4" OR EOF-IN = "Y"
+         PERFORM J-Search-Menu
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+             EVALUATE WS-MENU-SELECTION
+                 WHEN "1"
+                     PERFORM Post-Job-Flow
+                 WHEN "2"
+                     PERFORM Browse-Jobs-Enhanced
+                 WHEN "3"
+                     PERFORM View-My-Applications
+                 WHEN "4"
+                     CONTINUE
+                 WHEN OTHER
+                     MOVE "Invalid choice." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     .
+
+ Find-Someone.
+     MOVE "Enter the full name of the person you are looking for: " TO WS-MSG
+     PERFORM OUT-MSG
+     PERFORM READ-NEXT-INPUT
+     IF EOF-IN NOT = "Y"
+         MOVE FUNCTION TRIM(InLine) TO Search-Name
+         PERFORM Perform-Search
+         IF User-Found
+             PERFORM Display-Search-Profile
+             *> Add connection request option after displaying profile
+             PERFORM Connection-Options-Menu
+         ELSE
+             MOVE "No one by that name could be found." TO WS-MSG
+             PERFORM OUT-MSG
+         END-IF
+     END-IF
+     .
+
+ Connection-Options-Menu.
+     PERFORM UNTIL WS-MENU-SELECTION = "2" OR EOF-IN = "Y"
+         MOVE "1. Send Connection Request" TO WS-MSG
+         PERFORM OUT-MSG
+         MOVE "2. Back to Main Menu" TO WS-MSG
+         PERFORM OUT-MSG
+         MOVE "Enter your choice: " TO WS-MSG
+         PERFORM OUT-MSG
+
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+             EVALUATE WS-MENU-SELECTION
+                 WHEN "1"
+                     PERFORM Send-Connection-Request
+                     MOVE "2" TO WS-MENU-SELECTION
+                 WHEN "2"
+                     CONTINUE
+                 WHEN OTHER
+                     MOVE "Invalid choice." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     .
+
+ Send-Connection-Request.
+     *> Validate the connection request
+     PERFORM Validate-Connection-Request
+     IF Connection-Is-Valid
+         *> Add to in-memory connections array
+         ADD 1 TO Connection-Count
+         MOVE UserName TO Conn-Sender(Connection-Count)
+         MOVE Search-Username TO Conn-Recipient(Connection-Count)
+         MOVE "P" TO Conn-Status(Connection-Count)
+         *> Persist to file
+         PERFORM Append-Connection-To-Disk
+
+         MOVE SPACES TO WS-MSG
+         STRING "Connection request sent to " DELIMITED BY SIZE
+                FUNCTION TRIM(Search-First-Name) DELIMITED BY SIZE
+                " " DELIMITED BY SIZE
+                FUNCTION TRIM(Search-Last-Name) DELIMITED BY SIZE
+                "." DELIMITED BY SIZE
+                INTO WS-MSG
+         PERFORM OUT-MSG
+     END-IF
+     .
+
+ Validate-Connection-Request.
+     SET Connection-Is-Valid TO TRUE
+
+     *> Check if trying to connect with yourself
+     IF UserName = Search-Username
+         MOVE "You cannot send a connection request to yourself." TO WS-MSG
+         PERFORM OUT-MSG
+         SET Connection-Is-Invalid TO TRUE
+         EXIT PARAGRAPH
+     END-IF
+
+     *> Check if connection already exists (either direction)
+     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
+         IF (Conn-Sender(I) = UserName AND
+             Conn-Recipient(I) = Search-Username) OR
+            (Conn-Sender(I) = Search-Username AND
+             Conn-Recipient(I) = UserName)
+             IF Conn-Sender(I) = UserName
+                 MOVE "You have already sent a connection request to this user." TO WS-MSG
+             ELSE
+                 MOVE "This user has already sent you a connection request." TO WS-MSG
+             END-IF
+             PERFORM OUT-MSG
+             SET Connection-Is-Invalid TO TRUE
+             EXIT PERFORM
+         END-IF
+     END-PERFORM
+     .
+
+ *> ========================================
+ *> View Pending Requests with Accept/Reject
+ *> ========================================
+ View-Pending-Requests-With-Actions.
+     MOVE "--- Pending Connection Requests ---" TO WS-MSG
+     PERFORM OUT-MSG
+
+     *> Build list of pending requests for current user
+     MOVE 0 TO Pending-Request-Count
+     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
+         IF Conn-Recipient(I) = UserName AND Conn-Status(I) = "P"
+             ADD 1 TO Pending-Request-Count
+             MOVE I TO Pend-Index(Pending-Request-Count)
+             MOVE Conn-Sender(I) TO Pend-Sender(Pending-Request-Count)
+         END-IF
+     END-PERFORM
+
+     IF Pending-Request-Count = 0
+         MOVE "You have no pending connection requests at this time." TO WS-MSG
+         PERFORM OUT-MSG
+     ELSE
+         *> Display each request with Accept/Reject options
+         PERFORM VARYING J FROM 1 BY 1 UNTIL J > Pending-Request-Count
+             MOVE Pend-Index(J) TO I
+             PERFORM Display-Pending-Request-Details
+             PERFORM Handle-Request-Action
+             IF EOF-IN = "Y"
+                 EXIT PERFORM
+             END-IF
+         END-PERFORM
+     END-IF
+
+     MOVE "-----------------------------------" TO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ Display-Pending-Request-Details.
+     *> Find and display the profile of the sender
+     PERFORM Find-Profile-By-Connection-Sender
+     IF Profile-Exists
+         MOVE SPACES TO WS-MSG
+         STRING "Request from: " DELIMITED BY SIZE
+                FUNCTION TRIM(Temp-First-Name) DELIMITED BY SIZE
+                " " DELIMITED BY SIZE
+                FUNCTION TRIM(Temp-Last-Name) DELIMITED BY SIZE
+                INTO WS-MSG
+         PERFORM OUT-MSG
+         MOVE SPACES TO WS-MSG
+         STRING "  University: " DELIMITED BY SIZE
+                FUNCTION TRIM(Temp-University) DELIMITED BY SIZE
+                INTO WS-MSG
+         PERFORM OUT-MSG
+         MOVE SPACES TO WS-MSG
+         STRING "  Major: " DELIMITED BY SIZE
+                FUNCTION TRIM(Temp-Major) DELIMITED BY SIZE
+                INTO WS-MSG
+         PERFORM OUT-MSG
+     ELSE
+         MOVE SPACES TO WS-MSG
+         STRING "Request from: " DELIMITED BY SIZE
+                FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
+                INTO WS-MSG
+         PERFORM OUT-MSG
+     END-IF
+     .
+
+ Handle-Request-Action.
+     PERFORM UNTIL WS-MENU-SELECTION = "1" OR
+                   WS-MENU-SELECTION = "2" OR
+                   EOF-IN = "Y"
+         MOVE "1. Accept" TO WS-MSG
+         PERFORM OUT-MSG
+         MOVE "2. Reject" TO WS-MSG
+         PERFORM OUT-MSG
+         MOVE "Enter your choice: " TO WS-MSG
+         PERFORM OUT-MSG
+
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+             EVALUATE WS-MENU-SELECTION
+                 WHEN "1"
+                     PERFORM Accept-Connection-Request
+                 WHEN "2"
+                     PERFORM Reject-Connection-Request
+                 WHEN OTHER
+                     MOVE "Invalid choice. Please select 1 or 2." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     MOVE SPACES TO WS-MENU-SELECTION
+     .
+
+ Accept-Connection-Request.
+     *> Update status in memory
+     MOVE "A" TO Conn-Status(I)
+
+     *> Rewrite the entire connections file
+     PERFORM Rewrite-Connections-File
+
+     MOVE SPACES TO WS-MSG
+     STRING "Connection request from " DELIMITED BY SIZE
+            FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
+            " accepted." DELIMITED BY SIZE
+            INTO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ Reject-Connection-Request.
+     *> Update status in memory
+     MOVE "R" TO Conn-Status(I)
+
+     *> Rewrite the entire connections file
+     PERFORM Rewrite-Connections-File
+
+     MOVE SPACES TO WS-MSG
+     STRING "Connection request from " DELIMITED BY SIZE
+            FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
+            " rejected." DELIMITED BY SIZE
+            INTO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ *> ========================================
+ *> View My Network
+ *> ========================================
+ View-My-Network.
+     MOVE "--- My Network ---" TO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE 0 TO Has-Entries
+     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
+         IF Conn-Status(I) = "A"
+             IF Conn-Sender(I) = UserName OR Conn-Recipient(I) = UserName
+                 ADD 1 TO Has-Entries
+                 PERFORM Display-Network-Connection
+             END-IF
+         END-IF
+     END-PERFORM
+
+     IF Has-Entries = 0
+         MOVE "You have no connections yet." TO WS-MSG
+         PERFORM OUT-MSG
+     END-IF
+
+     MOVE "-------------------" TO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ Display-Network-Connection.
+     *> Determine which user is the connection
+     IF Conn-Sender(I) = UserName
+         MOVE Conn-Recipient(I) TO Target-Username
+         PERFORM Find-Profile-For-Network
+     ELSE
+         MOVE Conn-Sender(I) TO Target-Username
+         PERFORM Find-Profile-For-Network
+     END-IF
+
+     IF Profile-Exists
+         MOVE SPACES TO WS-MSG
+         STRING "- " DELIMITED BY SIZE
+                FUNCTION TRIM(Temp-First-Name) DELIMITED BY SIZE
+                " " DELIMITED BY SIZE
+                FUNCTION TRIM(Temp-Last-Name) DELIMITED BY SIZE
+                INTO WS-MSG
+         PERFORM OUT-MSG
+         MOVE SPACES TO WS-MSG
+         STRING "  University: " DELIMITED BY SIZE
+                FUNCTION TRIM(Temp-University) DELIMITED BY SIZE
+                ", Major: " DELIMITED BY SIZE
+                FUNCTION TRIM(Temp-Major) DELIMITED BY SIZE
+                INTO WS-MSG
+         PERFORM OUT-MSG
+     ELSE
+         IF Conn-Sender(I) = UserName
+             MOVE SPACES TO WS-MSG
+             STRING "- " DELIMITED BY SIZE
+                    FUNCTION TRIM(Conn-Recipient(I)) DELIMITED BY SIZE
+                    INTO WS-MSG
+             PERFORM OUT-MSG
+         ELSE
+             MOVE SPACES TO WS-MSG
+             STRING "- " DELIMITED BY SIZE
+                    FUNCTION TRIM(Conn-Sender(I)) DELIMITED BY SIZE
+                    INTO WS-MSG
+             PERFORM OUT-MSG
+         END-IF
+     END-IF
+     .
+
+ Find-Profile-For-Network.
+     SET Profile-Not-Exists TO TRUE
+     CLOSE PROFILES-FILE
+     OPEN INPUT PROFILES-FILE
+     MOVE 'N' TO PROF-EOF
+
+     PERFORM UNTIL PROF-EOF = 'Y' OR Profile-Exists
+         READ PROFILES-FILE
+             AT END
+                 MOVE 'Y' TO PROF-EOF
+             NOT AT END
+                 IF Profile-Line(1:20) = Target-Username
+                     SET Profile-Exists TO TRUE
+                     MOVE Profile-Line(21:30) TO Temp-First-Name
+                     MOVE Profile-Line(51:30) TO Temp-Last-Name
+                     MOVE Profile-Line(81:50) TO Temp-University
+                     MOVE Profile-Line(131:40) TO Temp-Major
+                 END-IF
+         END-READ
+     END-PERFORM
+
+     CLOSE PROFILES-FILE
+     OPEN EXTEND PROFILES-FILE
+     .
+
+ Rewrite-Connections-File.
+     *> Close and reopen in OUTPUT mode to clear the file
+     CLOSE CONNECTIONS-FILE
+     OPEN OUTPUT CONNECTIONS-FILE
+
+     *> Write all connections with their current status
+     PERFORM VARYING J FROM 1 BY 1 UNTIL J > Connection-Count
+         IF Conn-Sender(J) NOT = SPACES AND
+            Conn-Recipient(J) NOT = SPACES
+             MOVE ALL SPACES TO Connection-Line
+             STRING
+                 FUNCTION TRIM(Conn-Sender(J)) DELIMITED BY SIZE
+                 "|" DELIMITED BY SIZE
+                 FUNCTION TRIM(Conn-Recipient(J)) DELIMITED BY SIZE
+                 "|" DELIMITED BY SIZE
+                 Conn-Status(J) DELIMITED BY SIZE
+                 INTO Connection-Line
+             END-STRING
+             WRITE Connection-Line
+         END-IF
+     END-PERFORM
+
+     CLOSE CONNECTIONS-FILE
+     OPEN EXTEND CONNECTIONS-FILE
+     .
+
+ Find-Profile-By-Connection-Sender.
+     SET Profile-Not-Exists TO TRUE
+     CLOSE PROFILES-FILE
+     OPEN INPUT PROFILES-FILE
+     MOVE 'N' TO PROF-EOF
+
+     PERFORM UNTIL PROF-EOF = 'Y' OR Profile-Exists
+         READ PROFILES-FILE
+             AT END
+                 MOVE 'Y' TO PROF-EOF
+             NOT AT END
+                 IF Profile-Line(1:20) = Conn-Sender(I)
+                     SET Profile-Exists TO TRUE
+                     MOVE Profile-Line(21:30) TO Temp-First-Name
+                     MOVE Profile-Line(51:30) TO Temp-Last-Name
+                     MOVE Profile-Line(81:50) TO Temp-University
+                     MOVE Profile-Line(131:40) TO Temp-Major
+                 END-IF
+         END-READ
+     END-PERFORM
+
+     CLOSE PROFILES-FILE
+     OPEN EXTEND PROFILES-FILE
+     .
+
+ *> ================================
+ *> Job Search/Internship menu
+ *> ================================
+ J-Search-Menu.
+     MOVE "--- Job Search/Internship Menu ---" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "1. Post a Job/Internship" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "2. Browse Jobs/Internships" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "3. View My Applications" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "4. Back to Main Menu" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "Enter your choice: " TO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ *> ================================
+ *> Post a Job/Internship Flow
+ *> ================================
+ Post-Job-Flow.
+     MOVE "--- Post a New Job/Internship ---" TO WS-MSG
+     PERFORM OUT-MSG
+
+     *> Job Title (required)
+     MOVE "Enter Job Title: " TO WS-MSG
+     PERFORM OUT-MSG
+     PERFORM READ-NEXT-INPUT
+     MOVE FUNCTION TRIM(InLine) TO Job-Title
+
+     *> Description (required, max 200)
+     MOVE "Enter Description (max 200 chars): " TO WS-MSG
+     PERFORM OUT-MSG
+     PERFORM READ-NEXT-INPUT
+     MOVE FUNCTION TRIM(InLine) TO Job-Description
+     IF FUNCTION LENGTH(Job-Description) > 200
+         MOVE Job-Description(1:200) TO Job-Description
+     END-IF
+
+     *> Employer (required)
+     MOVE "Enter Employer Name: " TO WS-MSG
+     PERFORM OUT-MSG
+     PERFORM READ-NEXT-INPUT
+     MOVE FUNCTION TRIM(InLine) TO Job-Employer
+
+     *> Location (required)
+     MOVE "Enter Location: " TO WS-MSG
+     PERFORM OUT-MSG
+     PERFORM READ-NEXT-INPUT
+     MOVE FUNCTION TRIM(InLine) TO Job-Location
+
+     *> Salary (optional; 'NONE' allowed)
+     MOVE "Enter Salary (optional, enter 'NONE' to skip): " TO WS-MSG
+     PERFORM OUT-MSG
+     PERFORM READ-NEXT-INPUT
+     MOVE FUNCTION TRIM(InLine) TO Job-Salary
+     IF FUNCTION LENGTH(FUNCTION TRIM(Job-Salary)) = 0
+         MOVE "NONE" TO Job-Salary
+     END-IF
+
+     *> Basic required-field validation
+     IF Job-Title = SPACES OR
+        Job-Description = SPACES OR
+        Job-Employer = SPACES OR
+        Job-Location = SPACES
+         MOVE "Missing required field(s). Job NOT posted." TO WS-MSG
+         PERFORM OUT-MSG
+         EXIT PARAGRAPH
+     END-IF
+
+     *> Persist to disk (already open in EXTEND)
+     PERFORM Append-Job-To-Disk
+
+     MOVE "Job posted successfully!" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "----------------------------------" TO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ Append-Job-To-Disk.
+     *> Record format: poster|title|description|employer|location|salary
+     MOVE ALL SPACES TO Job-Line
+     STRING
+         FUNCTION TRIM(UserName)        DELIMITED BY SIZE
+         "|"                            DELIMITED BY SIZE
+         FUNCTION TRIM(Job-Title)       DELIMITED BY SIZE
+         "|"                            DELIMITED BY SIZE
+         FUNCTION TRIM(Job-Description) DELIMITED BY SIZE
+         "|"                            DELIMITED BY SIZE
+         FUNCTION TRIM(Job-Employer)    DELIMITED BY SIZE
+         "|"                            DELIMITED BY SIZE
+         FUNCTION TRIM(Job-Location)    DELIMITED BY SIZE
+         "|"                            DELIMITED BY SIZE
+         FUNCTION TRIM(Job-Salary)      DELIMITED BY SIZE
+         INTO Job-Line
+     END-STRING
+     WRITE Job-Line
+     .
+
+ *> ================================
+ *> NEW: Browse Jobs Enhanced with Full Details and Application
+ *> ================================
+ Browse-Jobs-Enhanced.
+     PERFORM Load-All-Jobs-Into-Memory
+
+     IF Job-Count = 0
+         MOVE "No job postings yet." TO WS-MSG
+         PERFORM OUT-MSG
+         EXIT PARAGRAPH
+     END-IF
+
+     PERFORM UNTIL Selected-Job-Number = 0 OR EOF-IN = "Y"
+         PERFORM Display-Job-List
+         MOVE "Enter job number to view details, or 0 to go back: " TO WS-MSG
+         PERFORM OUT-MSG
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE FUNCTION NUMVAL(InLine) TO Selected-Job-Number
+             IF Selected-Job-Number > 0 AND
+                Selected-Job-Number <= Job-Count
+                 PERFORM Display-Job-Details-And-Apply
+             ELSE IF Selected-Job-Number NOT = 0
+                 MOVE "Invalid job number." TO WS-MSG
+                 PERFORM OUT-MSG
+             END-IF
+         END-IF
+     END-PERFORM
+     MOVE 0 TO Selected-Job-Number
+     .
+
+ Load-All-Jobs-Into-Memory.
+     MOVE 0 TO Job-Count
+     CLOSE JOBS-FILE
+     OPEN INPUT JOBS-FILE
+     MOVE 'N' TO JOB-EOF
+
+     PERFORM UNTIL JOB-EOF = 'Y' OR Job-Count >= 99
+         READ JOBS-FILE
+             AT END
+                 MOVE 'Y' TO JOB-EOF
+             NOT AT END
+                 ADD 1 TO Job-Count
+                 MOVE Job-Count TO Job-ID(Job-Count)
+
+                 *> Parse: poster|title|description|employer|location|salary
+                 MOVE SPACES TO U-Part Job-Title Job-Description
+                                Job-Employer Job-Location Job-Salary
+                 UNSTRING Job-Line DELIMITED BY '|'
+                     INTO U-Part, Job-Title, Job-Description,
+                          Job-Employer, Job-Location, Job-Salary
+                 END-UNSTRING
+
+                 MOVE U-Part TO Job-Poster(Job-Count)
+                 MOVE Job-Title TO Job-Title-Store(Job-Count)
+                 MOVE Job-Description TO Job-Description-Store(Job-Count)
+                 MOVE Job-Employer TO Job-Employer-Store(Job-Count)
+                 MOVE Job-Location TO Job-Location-Store(Job-Count)
+                 MOVE Job-Salary TO Job-Salary-Store(Job-Count)
+         END-READ
+     END-PERFORM
+
+     CLOSE JOBS-FILE
+     OPEN EXTEND JOBS-FILE
+     .
+
+ Display-Job-List.
+     MOVE "--- Available Job Listings ---" TO WS-MSG
+     PERFORM OUT-MSG
+
+     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Job-Count
+         MOVE SPACES TO WS-MSG
+         STRING
+             I DELIMITED BY SIZE
+             ". " DELIMITED BY SIZE
+             FUNCTION TRIM(Job-Title-Store(I)) DELIMITED BY SIZE
+             " at " DELIMITED BY SIZE
+             FUNCTION TRIM(Job-Employer-Store(I)) DELIMITED BY SIZE
+             " (" DELIMITED BY SIZE
+             FUNCTION TRIM(Job-Location-Store(I)) DELIMITED BY SIZE
+             ")" DELIMITED BY SIZE
+             INTO WS-MSG
+         PERFORM OUT-MSG
+     END-PERFORM
+
+     MOVE "-----------------------------" TO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ Display-Job-Details-And-Apply.
+     MOVE "--- Job Details ---" TO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE SPACES TO WS-MSG
+     STRING "Title: " DELIMITED BY SIZE
+            FUNCTION TRIM(Job-Title-Store(Selected-Job-Number))
+            DELIMITED BY SIZE
+            INTO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE SPACES TO WS-MSG
+     STRING "Description: " DELIMITED BY SIZE
+            FUNCTION TRIM(Job-Description-Store(Selected-Job-Number))
+            DELIMITED BY SIZE
+            INTO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE SPACES TO WS-MSG
+     STRING "Employer: " DELIMITED BY SIZE
+            FUNCTION TRIM(Job-Employer-Store(Selected-Job-Number))
+            DELIMITED BY SIZE
+            INTO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE SPACES TO WS-MSG
+     STRING "Location: " DELIMITED BY SIZE
+            FUNCTION TRIM(Job-Location-Store(Selected-Job-Number))
+            DELIMITED BY SIZE
+            INTO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE SPACES TO WS-MSG
+     STRING "Salary: " DELIMITED BY SIZE
+            FUNCTION TRIM(Job-Salary-Store(Selected-Job-Number))
+            DELIMITED BY SIZE
+            INTO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE "-------------------" TO WS-MSG
+     PERFORM OUT-MSG
+
+     *> Show apply option
+     PERFORM UNTIL Job-Details-Choice = "1" OR
+                   Job-Details-Choice = "2" OR
+                   EOF-IN = "Y"
+         MOVE "1. Apply for this Job" TO WS-MSG
+         PERFORM OUT-MSG
+         MOVE "2. Back to Job List" TO WS-MSG
+         PERFORM OUT-MSG
+         MOVE "Enter your choice: " TO WS-MSG
+         PERFORM OUT-MSG
+
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO Job-Details-Choice
+             EVALUATE Job-Details-Choice
+                 WHEN "1"
+                     PERFORM Apply-For-Job
+                 WHEN "2"
+                     CONTINUE
+                 WHEN OTHER
+                     MOVE "Invalid choice." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     MOVE SPACES TO Job-Details-Choice
+     .
+
+ Apply-For-Job.
+     *> Check if already applied
+     PERFORM Check-Already-Applied
+
+     IF Already-Applied
+         MOVE "You have already applied for this job." TO WS-MSG
+         PERFORM OUT-MSG
+     ELSE
+         *> Add application to memory
+         ADD 1 TO Application-Count
+         MOVE UserName TO App-Username(Application-Count)
+         MOVE Job-ID(Selected-Job-Number) TO App-Job-ID(Application-Count)
+
+         *> Persist to disk
+         PERFORM Append-Application-To-Disk
+
+         *> Confirmation message
+         MOVE SPACES TO WS-MSG
+         STRING "Your application for " DELIMITED BY SIZE
+                FUNCTION TRIM(Job-Title-Store(Selected-Job-Number))
+                DELIMITED BY SIZE
+                " at " DELIMITED BY SIZE
+                FUNCTION TRIM(Job-Employer-Store(Selected-Job-Number))
+                DELIMITED BY SIZE
+                " has been submitted." DELIMITED BY SIZE
+                INTO WS-MSG
+         PERFORM OUT-MSG
+     END-IF
+     .
+
+ Check-Already-Applied.
+     SET Not-Applied-Yet TO TRUE
+     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Application-Count
+         IF App-Username(I) = UserName AND
+            App-Job-ID(I) = Job-ID(Selected-Job-Number)
+             SET Already-Applied TO TRUE
+             EXIT PERFORM
+         END-IF
+     END-PERFORM
+     .
+
+ Append-Application-To-Disk.
+     *> Record format: username|jobID
+     MOVE ALL SPACES TO Application-Line
+     STRING
+         FUNCTION TRIM(UserName) DELIMITED BY SIZE
+         "|" DELIMITED BY SIZE
+         App-Job-ID(Application-Count) DELIMITED BY SIZE
+         INTO Application-Line
+     END-STRING
+     WRITE Application-Line
+     .
+
+ Load-Applications-From-Disk.
+     CLOSE APPLICATIONS-FILE
+     OPEN INPUT APPLICATIONS-FILE
+     MOVE 'N' TO APP-EOF
+     MOVE 0 TO Application-Count
+
+     PERFORM UNTIL APP-EOF = 'Y'
+         READ APPLICATIONS-FILE
+             AT END
+                 MOVE 'Y' TO APP-EOF
+             NOT AT END
+                 MOVE SPACES TO U-Part
+                 MOVE 0 TO Selected-Job-Number
+                 UNSTRING Application-Line DELIMITED BY '|'
+                     INTO U-Part, Selected-Job-Number
+                 END-UNSTRING
+                 IF U-Part NOT = SPACES
+                     IF Application-Count < 99
+                         ADD 1 TO Application-Count
+                         MOVE U-Part TO App-Username(Application-Count)
+                         MOVE Selected-Job-Number TO
+                              App-Job-ID(Application-Count)
+                     END-IF
+                 END-IF
+         END-READ
+     END-PERFORM
+
+     CLOSE APPLICATIONS-FILE
+     OPEN EXTEND APPLICATIONS-FILE
+     .
+
+ *> ================================
+ *> NEW: View My Applications Report
+ *> ================================
+ View-My-Applications.
+     MOVE "--- Your Job Applications ---" TO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE SPACES TO WS-MSG
+     STRING "Application Summary for " DELIMITED BY SIZE
+            FUNCTION TRIM(UserName) DELIMITED BY SIZE
+            INTO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE "------------------------------" TO WS-MSG
+     PERFORM OUT-MSG
+
+     *> Load jobs into memory first
+     PERFORM Load-All-Jobs-Into-Memory
+
+     *> Count and display user's applications
+     MOVE 0 TO User-App-Count
+     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Application-Count
+         IF App-Username(I) = UserName
+             ADD 1 TO User-App-Count
+             PERFORM Display-Application-Entry
+         END-IF
+     END-PERFORM
+
+     IF User-App-Count = 0
+         MOVE "You have not applied to any jobs yet." TO WS-MSG
+         PERFORM OUT-MSG
+     ELSE
+         MOVE "------------------------------" TO WS-MSG
+         PERFORM OUT-MSG
+         MOVE SPACES TO WS-MSG
+         STRING "Total Applications: " DELIMITED BY SIZE
+                User-App-Count DELIMITED BY SIZE
+                INTO WS-MSG
+         PERFORM OUT-MSG
+     END-IF
+
+     MOVE "------------------------------" TO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ Display-Application-Entry.
+     *> Find the job details for this application
+     PERFORM VARYING J FROM 1 BY 1 UNTIL J > Job-Count
+         IF Job-ID(J) = App-Job-ID(I)
+             MOVE SPACES TO WS-MSG
+             STRING "Job Title: " DELIMITED BY SIZE
+                    FUNCTION TRIM(Job-Title-Store(J)) DELIMITED BY SIZE
+                    INTO WS-MSG
+             PERFORM OUT-MSG
+
+             MOVE SPACES TO WS-MSG
+             STRING "Employer: " DELIMITED BY SIZE
+                    FUNCTION TRIM(Job-Employer-Store(J)) DELIMITED BY SIZE
+                    INTO WS-MSG
+             PERFORM OUT-MSG
+
+             MOVE SPACES TO WS-MSG
+             STRING "Location: " DELIMITED BY SIZE
+                    FUNCTION TRIM(Job-Location-Store(J)) DELIMITED BY SIZE
+                    INTO WS-MSG
+             PERFORM OUT-MSG
+
+             MOVE "---" TO WS-MSG
+             PERFORM OUT-MSG
+
+             EXIT PERFORM
+         END-IF
+     END-PERFORM
+     .
+
+ *> ===============================================================
+ *> Skill menus (stubs)
+ *> ===============================================================
+ Skill-Loop.
+     PERFORM UNTIL WS-MENU-SELECTION = "5" OR EOF-IN = "Y"
+         PERFORM Skill-Menu
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+             EVALUATE WS-MENU-SELECTION
+                 WHEN "1"
+                     PERFORM Web-Dev-Loop
+                 WHEN "2"
+                     PERFORM Deep-Learning-Loop
+                 WHEN "3"
+                     PERFORM Interview-Loop
+                 WHEN "4"
+                     PERFORM Resume-Loop
+                 WHEN "5"
+                     CONTINUE
+                 WHEN OTHER
+                     MOVE "Invalid choice." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     .
+
+ Web-Dev-Loop.
+     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
+         PERFORM Web-Dev-Menu
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+             EVALUATE WS-MENU-SELECTION
+                 WHEN "1"
+                     CONTINUE
+                 WHEN OTHER
+                     MOVE "Invalid choice." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     .
+
+ Deep-Learning-Loop.
+     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
+         PERFORM Deep-Learning-Menu
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+             EVALUATE WS-MENU-SELECTION
+                 WHEN "1"
+                     CONTINUE
+                 WHEN OTHER
+                     MOVE "Invalid choice." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     .
+
+ Interview-Loop.
+     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
+         PERFORM Interview-Menu
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+             EVALUATE WS-MENU-SELECTION
+                 WHEN "1"
+                     CONTINUE
+                 WHEN OTHER
+                     MOVE "Invalid choice." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     .
+
+ Resume-Loop.
+     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
+         PERFORM Resume-Menu
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+             EVALUATE WS-MENU-SELECTION
+                 WHEN "1"
+                     CONTINUE
+                 WHEN OTHER
+                     MOVE "Invalid choice." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     .
+
+ Profile-Loop.
+     PERFORM UNTIL WS-MENU-SELECTION = "5" OR EOF-IN = "Y"
+         PERFORM Profile-Menu
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+             EVALUATE WS-MENU-SELECTION
+                 WHEN "1"
+                     PERFORM Edit-Basic-Info
+                 WHEN "2"
+                     PERFORM Edit-Experience
+                 WHEN "3"
+                     PERFORM Edit-Education
+                 WHEN "4"
+                     PERFORM Save-Profile
+                 WHEN "5"
+                     CONTINUE
+                 WHEN OTHER
+                     MOVE "Invalid choice." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     .
+
+ *> -----------------------------
+ *> MENU DISPLAY PARAGRAPHS
+ *> -----------------------------
+ Skill-Menu.
+     MOVE "1. Learn Web Development" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "2. Learn Deep Learning" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "3. Learn How To Crack Interview Questions" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "4. Learn How To Optimize Your Resume" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "5. Return" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "Enter your choice: " TO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ Web-Dev-Menu.
+    MOVE "Web Development – Quick Tips" TO WS-MSG
     PERFORM OUT-MSG
-
-    MOVE 0 TO Has-Entries
-    CLOSE JOBS-FILE
-    OPEN INPUT JOBS-FILE
-    MOVE 'N' TO JOB-EOF
-
-    PERFORM UNTIL JOB-EOF = 'Y'
-        READ JOBS-FILE
-            AT END
-                MOVE 'Y' TO JOB-EOF
-            NOT AT END
-                *> poster|title|description|employer|location|salary
-                MOVE SPACES TO U-Part Job-Title Job-Description Job-Employer Job-Location Job-Salary
-                UNSTRING Job-Line DELIMITED BY '|'
-                    INTO U-Part, Job-Title, Job-Description, Job-Employer, Job-Location, Job-Salary
-                END-UNSTRING
-
-                ADD 1 TO Has-Entries
-
-                MOVE SPACES TO WS-MSG
-                STRING "Title: " DELIMITED BY SIZE
-                       FUNCTION TRIM(Job-Title) DELIMITED BY SIZE
-                       INTO WS-MSG
-                PERFORM OUT-MSG
-
-                MOVE SPACES TO WS-MSG
-                STRING "Employer: " DELIMITED BY SIZE
-                       FUNCTION TRIM(Job-Employer) DELIMITED BY SIZE
-                       INTO WS-MSG
-                PERFORM OUT-MSG
-
-                MOVE SPACES TO WS-MSG
-                STRING "Location: " DELIMITED BY SIZE
-                       FUNCTION TRIM(Job-Location) DELIMITED BY SIZE
-                       INTO WS-MSG
-                PERFORM OUT-MSG
-
-                MOVE SPACES TO WS-MSG
-                STRING "Salary: " DELIMITED BY SIZE
-                       FUNCTION TRIM(Job-Salary) DELIMITED BY SIZE
-                       INTO WS-MSG
-                PERFORM OUT-MSG
-
-                MOVE SPACES TO WS-MSG
-                STRING "Posted by: " DELIMITED BY SIZE
-                       FUNCTION TRIM(U-Part) DELIMITED BY SIZE
-                       INTO WS-MSG
-                PERFORM OUT-MSG
-
-                MOVE SPACES TO WS-MSG
-                STRING "Description: " DELIMITED BY SIZE
-                       FUNCTION TRIM(Job-Description) DELIMITED BY SIZE
-                       INTO WS-MSG
-                PERFORM OUT-MSG
-
-                MOVE "------------------------------" TO WS-MSG
-                PERFORM OUT-MSG
-        END-READ
-    END-PERFORM
-
-    IF Has-Entries = 0
-        MOVE "No job postings yet." TO WS-MSG
-        PERFORM OUT-MSG
-    END-IF
-
-    CLOSE JOBS-FILE
-    OPEN EXTEND JOBS-FILE
+    MOVE "• Start with HTML & CSS basics (layout, flexbox, forms)" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Learn JavaScript fundamentals (DOM, events, fetch)" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Build a simple portfolio site with 2–3 pages" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Use Git/GitHub for version control" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "1. Return" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "Enter your choice: " TO WS-MSG
+    PERFORM OUT-MSG
     .
-*> ================================
 
+ Deep-Learning-Menu.
+    MOVE "Deep Learning – Quick Path" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Brush up linear algebra, calculus, and probability" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Practice Python + NumPy; learn tensors and autodiff" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Train a small model (MNIST/CIFAR) and tune learning rate" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Read training logs; avoid overfitting with regularization" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "1. Return" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "Enter your choice: " TO WS-MSG
+    PERFORM OUT-MSG
+    .
+
+ Interview-Menu.
+    MOVE "Interview Prep – Checklist" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Review Big-O and core data structures/algorithms" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Solve 1–2 practice problems daily (arrays, strings, graphs)" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Prepare STAR stories for behavioral questions" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Do mock interviews and reflect on feedback" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "1. Return" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "Enter your choice: " TO WS-MSG
+    PERFORM OUT-MSG
+    .
+
+ Resume-Menu.
+    MOVE "Resume Optimization – Tips" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Keep it to one page (students/early career)" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Use action verbs and quantify impact (e.g., 'reduced build time 30%')" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Tailor bullets to the job description keywords" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "• Put most relevant projects/experience at the top" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "1. Return" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "Enter your choice: " TO WS-MSG
+    PERFORM OUT-MSG
+    .
+
+ Profile-Menu.
+     MOVE "1. Edit Basic Information" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "2. Edit Experience" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "3. Edit Education" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "4. Save Profile" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "5. Return" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "Enter your choice: " TO WS-MSG
+     PERFORM OUT-MSG
+     .
