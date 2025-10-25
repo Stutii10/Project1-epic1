@@ -65,7 +65,7 @@
  01  Job-Line                       PIC X(400).
 
  FD  APPLICATIONS-FILE.
- 01  Application-Line               PIC X(80).
+ 01  Application-Line               PIC X(400).
 
  WORKING-STORAGE SECTION.
  01 Target-Username                 PIC X(20).
@@ -83,7 +83,9 @@
  01  PROF-EOF                       PIC X VALUE 'N'.
  01  CONN-EOF                       PIC X VALUE 'N'.
  01  JOB-EOF                        PIC X VALUE 'N'.
- 01  APP-EOF                        PIC X VALUE 'N'.
+01  APP-EOF                        PIC X VALUE 'N'.
+    88  APP-EOF-YES                     VALUE 'Y'.
+    88  APP-EOF-NO                      VALUE 'N'.
 
  *> ------- Menu / input buffers -------
  01  UserChoice                     PIC 9.
@@ -1784,7 +1786,7 @@
      PERFORM OUT-MSG
      MOVE "2. Browse Jobs/Internships" TO WS-MSG
      PERFORM OUT-MSG
-     MOVE "3. View My Applications" TO WS-MSG
+    MOVE "3. View Application Report" TO WS-MSG
      PERFORM OUT-MSG
      MOVE "4. Back to Main Menu" TO WS-MSG
      PERFORM OUT-MSG
@@ -1942,26 +1944,26 @@
      .
 
  Display-Job-List.
-     MOVE "--- Available Job Listings ---" TO WS-MSG
-     PERFORM OUT-MSG
+    MOVE "--- Available Job Listings ---" TO WS-MSG
+    PERFORM OUT-MSG
 
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Job-Count
-         MOVE SPACES TO WS-MSG
-         STRING
-             I DELIMITED BY SIZE
-             ". " DELIMITED BY SIZE
-             FUNCTION TRIM(Job-Title-Store(I)) DELIMITED BY SIZE
-             " at " DELIMITED BY SIZE
-             FUNCTION TRIM(Job-Employer-Store(I)) DELIMITED BY SIZE
-             " (" DELIMITED BY SIZE
-             FUNCTION TRIM(Job-Location-Store(I)) DELIMITED BY SIZE
-             ")" DELIMITED BY SIZE
-             INTO WS-MSG
-         PERFORM OUT-MSG
-     END-PERFORM
+    PERFORM VARYING I FROM 1 BY 1 UNTIL I > Job-Count
+        MOVE SPACES TO WS-MSG
+        STRING
+            I DELIMITED BY SIZE
+            ". " DELIMITED BY SIZE
+            FUNCTION TRIM(Job-Title-Store(I)) DELIMITED BY SIZE
+            " - " DELIMITED BY SIZE
+            FUNCTION TRIM(Job-Employer-Store(I)) DELIMITED BY SIZE
+            " (" DELIMITED BY SIZE
+            FUNCTION TRIM(Job-Location-Store(I)) DELIMITED BY SIZE
+            ")" DELIMITED BY SIZE
+            INTO WS-MSG
+        PERFORM OUT-MSG
+    END-PERFORM
 
-     MOVE "-----------------------------" TO WS-MSG
-     PERFORM OUT-MSG
+    MOVE "-----------------------------" TO WS-MSG
+    PERFORM OUT-MSG
      .
 
  Display-Job-Details-And-Apply.
