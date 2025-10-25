@@ -1878,6 +1878,7 @@
  *> NEW: Browse Jobs Enhanced with Full Details and Application
  *> ================================
  Browse-Jobs-Enhanced.
+     MOVE 99 TO Selected-Job-Number
      PERFORM Load-All-Jobs-Into-Memory
 
      IF Job-Count = 0
@@ -1892,7 +1893,7 @@
          PERFORM OUT-MSG
          PERFORM READ-NEXT-INPUT
          IF EOF-IN NOT = "Y"
-             MOVE FUNCTION NUMVAL(InLine) TO Selected-Job-Number
+             MOVE FUNCTION NUMVAL(WS-INPUT-VALUE) TO Selected-Job-Number
              IF Selected-Job-Number > 0 AND
                 Selected-Job-Number <= Job-Count
                  PERFORM Display-Job-Details-And-Apply
@@ -2332,15 +2333,15 @@
      .
 
  Web-Dev-Menu.
-    MOVE "Web Development – Quick Tips" TO WS-MSG
+    MOVE "Web Development - Quick Tips" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Start with HTML & CSS basics (layout, flexbox, forms)" TO WS-MSG
+    MOVE "- Start with HTML & CSS basics (layout, flexbox, forms)" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Learn JavaScript fundamentals (DOM, events, fetch)" TO WS-MSG
+    MOVE "- Learn JavaScript fundamentals (DOM, events, fetch)" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Build a simple portfolio site with 2–3 pages" TO WS-MSG
+    MOVE "- Build a simple portfolio site with 2-3 pages" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Use Git/GitHub for version control" TO WS-MSG
+    MOVE "- Use Git/GitHub for version control" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "1. Return" TO WS-MSG
     PERFORM OUT-MSG
@@ -2349,15 +2350,15 @@
     .
 
  Deep-Learning-Menu.
-    MOVE "Deep Learning – Quick Path" TO WS-MSG
+    MOVE "Deep Learning - Quick Path" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Brush up linear algebra, calculus, and probability" TO WS-MSG
+    MOVE "- Brush up linear algebra, calculus, and probability" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Practice Python + NumPy; learn tensors and autodiff" TO WS-MSG
+    MOVE "- Practice Python + NumPy; learn tensors and autodiff" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Train a small model (MNIST/CIFAR) and tune learning rate" TO WS-MSG
+    MOVE "- Train a small model (MNIST/CIFAR) and tune learning rate" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Read training logs; avoid overfitting with regularization" TO WS-MSG
+    MOVE "- Read training logs; avoid overfitting with regularization" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "1. Return" TO WS-MSG
     PERFORM OUT-MSG
@@ -2366,15 +2367,15 @@
     .
 
  Interview-Menu.
-    MOVE "Interview Prep – Checklist" TO WS-MSG
+    MOVE "Interview Prep - Checklist" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Review Big-O and core data structures/algorithms" TO WS-MSG
+    MOVE "- Review Big-O and core data structures/algorithms" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Solve 1–2 practice problems daily (arrays, strings, graphs)" TO WS-MSG
+    MOVE "- Solve 1-2 practice problems daily (arrays, strings, graphs)" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Prepare STAR stories for behavioral questions" TO WS-MSG
+    MOVE "- Prepare STAR stories for behavioral questions" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Do mock interviews and reflect on feedback" TO WS-MSG
+    MOVE "- Do mock interviews and reflect on feedback" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "1. Return" TO WS-MSG
     PERFORM OUT-MSG
@@ -2383,15 +2384,15 @@
     .
 
  Resume-Menu.
-    MOVE "Resume Optimization – Tips" TO WS-MSG
+    MOVE "Resume Optimization - Tips" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Keep it to one page (students/early career)" TO WS-MSG
+    MOVE "- Keep it to one page (students/early career)" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Use action verbs and quantify impact (e.g., 'reduced build time 30%')" TO WS-MSG
+    MOVE "- Use action verbs and quantify impact (e.g., 'reduced build time 30%')" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Tailor bullets to the job description keywords" TO WS-MSG
+    MOVE "- Tailor bullets to the job description keywords" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "• Put most relevant projects/experience at the top" TO WS-MSG
+    MOVE "- Put most relevant projects/experience at the top" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "1. Return" TO WS-MSG
     PERFORM OUT-MSG

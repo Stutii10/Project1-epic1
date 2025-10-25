@@ -1,32 +1,20 @@
 2
-TestUser
-TestPass1!
+User10
+LongDesc1!
 1
-TestUser
-TestPass1!
+User10
+LongDesc1!
 3
 1
-Software Intern
-Develop tools for internal testing and automation.
-TechCorp
-New York, NY
-$25/hour
-1
-Data Analyst
-Analyze datasets and generate reports.
-DataSolutions
-Remote
-$30/hour
-1
-Marketing Specialist
-Create marketing campaigns.
-BrandInc
-Chicago, IL
-$50000
+Full Stack Developer
+We are looking for an experienced full stack developer to join our team and work on cutting-edge technologies including React Node.js Python and AWS cloud services daily.
+TechGiants
+San Jose, CA
+$140000
 2
 1
 1
-2
+0
 3
 4
 8
