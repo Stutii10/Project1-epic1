@@ -1,15 +1,32 @@
-# Project1-Epic6
+# Project1-Epic7
 
-Job/Internship Posting (Epic 6 core)
+Core features implemented in this epic:
 
-1. Post a job/internship with required fields. Persist each posting to JobPostings.dat in a single line record.
+Job/Internship Posting
 
-2. Job Browsing: List all posted jobs/internships from JobPostings.dat.Display title, employer, location, salary (or NONE), poster username, and description.
+Post a job with required fields.
 
-3. Connections – Requests and Actions, Send connection requests from profile search results.View pending requests addressed to the logged-in user.Accept or reject each pending request, with status persisted.
+Each posting is persisted to JobPostings.dat as a single-line record.
 
-4. My Network View: List all accepted connections for the logged-in user. If a profile exists for the connection, show basic profile summary.
+Job Browsing
 
+List all posted jobs/internships from JobPostings.dat.
+
+Display: title, employer, location, salary (or NONE), poster username, and description.
+
+Connections — Requests & Actions
+
+From profile search results: send connection requests.
+
+View pending requests addressed to the logged-in user.
+
+Accept/Reject each pending request; status is persisted.
+
+My Network View
+
+List all accepted connections for the logged-in user.
+
+If a profile exists for that connection, show a basic profile summary (name, university, major).
 To compile and run the project, use the following commands:
 
 ```bash
