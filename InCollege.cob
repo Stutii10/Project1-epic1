@@ -43,6 +43,10 @@
          ASSIGN TO 'Applications.dat'
          ORGANIZATION IS LINE SEQUENTIAL
          FILE STATUS IS FS-APPS.
+     SELECT MESSAGES-FILE
+         ASSIGN TO 'Messages.dat'
+         ORGANIZATION IS LINE SEQUENTIAL
+         FILE STATUS IS FS-MSGS.
 
  DATA DIVISION.
  FILE SECTION.
@@ -67,6 +71,9 @@
  FD  APPLICATIONS-FILE.
  01  Application-Line               PIC X(80).
 
+ FD  MESSAGES-FILE.
+ 01  Message-Line                   PIC X(500).
+
  WORKING-STORAGE SECTION.
  01 Target-Username                 PIC X(20).
 
@@ -78,12 +85,14 @@
  01  FS-CONN                        PIC XX VALUE '00'.
  01  FS-JOBS                        PIC XX VALUE '00'.
  01  FS-APPS                        PIC XX VALUE '00'.
+ 01  FS-MSGS                        PIC XX VALUE '00'.
  01  EOF-IN                         PIC X VALUE 'N'.
  01  ACCT-EOF                       PIC X VALUE 'N'.
  01  PROF-EOF                       PIC X VALUE 'N'.
  01  CONN-EOF                       PIC X VALUE 'N'.
  01  JOB-EOF                        PIC X VALUE 'N'.
  01  APP-EOF                        PIC X VALUE 'N'.
+ 01  MSG-EOF                        PIC X VALUE 'N'.
 
  *> ------- Menu / input buffers -------
  01  UserChoice                     PIC 9.
@@ -253,6 +262,13 @@
 
  01  User-App-Count                 PIC 99 VALUE 0.
 
+ *> ------- NEW: Messaging variables -------
+ 01  Message-Recipient              PIC X(20).
+ 01  Message-Content                PIC X(200).
+ 01  Message-Valid-Flag             PIC X VALUE 'N'.
+     88  Message-Recipient-Valid          VALUE 'Y'.
+     88  Message-Recipient-Invalid        VALUE 'N'.
+
  PROCEDURE DIVISION.
  Main.
      PERFORM Open-Files
@@ -314,8 +330,10 @@
                      WHEN "6"
                          PERFORM View-My-Network
                      WHEN "7"
-                         PERFORM Skill-Loop
+                         PERFORM Messages-Loop
                      WHEN "8"
+                         PERFORM Skill-Loop
+                     WHEN "9"
                          MOVE "You have logged out." TO WS-MSG
                          PERFORM OUT-MSG
                          SET USER-NOT-LOGGED-IN TO TRUE
@@ -395,6 +413,16 @@
      END-IF
      CLOSE APPLICATIONS-FILE
      OPEN EXTEND APPLICATIONS-FILE
+
+     *> NEW: Try to open messages file for INPUT; if missing, create it.
+     OPEN INPUT  MESSAGES-FILE
+     IF FS-MSGS = "35"
+         OPEN OUTPUT MESSAGES-FILE
+         CLOSE MESSAGES-FILE
+         OPEN INPUT MESSAGES-FILE
+     END-IF
+     CLOSE MESSAGES-FILE
+     OPEN EXTEND MESSAGES-FILE
      .
 
  Close-Files.
@@ -405,6 +433,7 @@
      CLOSE CONNECTIONS-FILE
      CLOSE JOBS-FILE
      CLOSE APPLICATIONS-FILE
+     CLOSE MESSAGES-FILE
      .
 
  *> Display to screen AND write to output file
@@ -1378,9 +1407,11 @@
      PERFORM OUT-MSG
      MOVE "6. View My Network" TO WS-MSG
      PERFORM OUT-MSG
-     MOVE "7. Learn a New Skill" TO WS-MSG
+     MOVE "7. Messages" TO WS-MSG
      PERFORM OUT-MSG
-     MOVE "8. Log Out" TO WS-MSG
+     MOVE "8. Learn a New Skill" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "9. Log Out" TO WS-MSG
      PERFORM OUT-MSG
      MOVE "Enter your choice: " TO WS-MSG
      PERFORM OUT-MSG
@@ -2413,4 +2444,113 @@
      PERFORM OUT-MSG
      MOVE "Enter your choice: " TO WS-MSG
      PERFORM OUT-MSG
+     .
+
+ *> ===============================================================
+ *> NEW: Messaging System (Epic #8 - Week 8)
+ *> ===============================================================
+ Messages-Loop.
+     MOVE SPACES TO WS-MENU-SELECTION
+     PERFORM UNTIL WS-MENU-SELECTION = "3" OR EOF-IN = "Y"
+         PERFORM Messages-Menu
+         PERFORM READ-NEXT-INPUT
+         IF EOF-IN NOT = "Y"
+             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+             EVALUATE WS-MENU-SELECTION
+                 WHEN "1"
+                     PERFORM Send-Message
+                 WHEN "2"
+                     MOVE "View My Messages is under construction." TO WS-MSG
+                     PERFORM OUT-MSG
+                 WHEN "3"
+                     CONTINUE
+                 WHEN OTHER
+                     MOVE "Invalid choice." TO WS-MSG
+                     PERFORM OUT-MSG
+             END-EVALUATE
+         END-IF
+     END-PERFORM
+     .
+
+ Messages-Menu.
+     MOVE "--- Messages Menu ---" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "1. Send a New Message" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "2. View My Messages" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "3. Back to Main Menu" TO WS-MSG
+     PERFORM OUT-MSG
+     MOVE "Enter your choice: " TO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ Send-Message.
+     MOVE "Enter recipient's username (must be a connection): " TO WS-MSG
+     PERFORM OUT-MSG
+     PERFORM READ-NEXT-INPUT
+     IF EOF-IN NOT = "Y"
+         MOVE FUNCTION TRIM(InLine) TO Message-Recipient
+         PERFORM Validate-Message-Recipient
+
+         IF Message-Recipient-Valid
+             MOVE "Enter your message (max 200 chars): " TO WS-MSG
+             PERFORM OUT-MSG
+             PERFORM READ-NEXT-INPUT
+             IF EOF-IN NOT = "Y"
+                 MOVE FUNCTION TRIM(InLine) TO Message-Content
+                 IF FUNCTION LENGTH(Message-Content) > 200
+                     MOVE Message-Content(1:200) TO Message-Content
+                 END-IF
+
+                 *> Save message to disk
+                 PERFORM Append-Message-To-Disk
+
+                 MOVE SPACES TO WS-MSG
+                 STRING "Message sent to " DELIMITED BY SIZE
+                        FUNCTION TRIM(Message-Recipient) DELIMITED BY SIZE
+                        " successfully!" DELIMITED BY SIZE
+                        INTO WS-MSG
+                 PERFORM OUT-MSG
+                 MOVE "---------------------" TO WS-MSG
+                 PERFORM OUT-MSG
+             END-IF
+         END-IF
+     END-IF
+     .
+
+ Validate-Message-Recipient.
+     SET Message-Recipient-Invalid TO TRUE
+
+     *> Check if recipient is a connected user (status = 'A')
+     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
+         IF Conn-Status(I) = "A"
+             IF (Conn-Sender(I) = UserName AND
+                 Conn-Recipient(I) = Message-Recipient) OR
+                (Conn-Sender(I) = Message-Recipient AND
+                 Conn-Recipient(I) = UserName)
+                 SET Message-Recipient-Valid TO TRUE
+                 EXIT PERFORM
+             END-IF
+         END-IF
+     END-PERFORM
+
+     IF Message-Recipient-Invalid
+         MOVE "You can only message users you are connected with." TO WS-MSG
+         PERFORM OUT-MSG
+     END-IF
+     .
+
+ Append-Message-To-Disk.
+     *> Record format: sender|recipient|message
+     MOVE ALL SPACES TO Message-Line
+     STRING
+         FUNCTION TRIM(UserName) DELIMITED BY SIZE
+         "|" DELIMITED BY SIZE
+         FUNCTION TRIM(Message-Recipient) DELIMITED BY SIZE
+         "|" DELIMITED BY SIZE
+         FUNCTION TRIM(Message-Content) DELIMITED BY SIZE
+         INTO Message-Line
+     END-STRING
+     WRITE Message-Line
      .
