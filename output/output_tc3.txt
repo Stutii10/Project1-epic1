@@ -119,13 +119,6 @@ Basic information updated.
 4. Save Profile
 5. Return
 Enter your choice:
-Invalid choice.
-1. Edit Basic Information
-2. Edit Experience
-3. Edit Education
-4. Save Profile
-5. Return
-Enter your choice:
 Profile saved successfully.
 1. Edit Basic Information
 2. Edit Experience
@@ -133,30 +126,6 @@ Profile saved successfully.
 4. Save Profile
 5. Return
 Enter your choice:
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Messages
-8. Learn a New Skill
-9. Log Out
-Enter your choice:
-Enter the full name of the person you are looking for:
---- Found User Profile ---
-Name: Marvin Guerrero-Rangel
-University: University of South Florida
-Major: Computer Science
-Graduation Year: 2025
-About Me: I am a backend systems engineer.
-Experience: None
-Education: None
--------------------------
-1. Send Connection Request
-2. Back to Main Menu
-Enter your choice:
-Connection request sent to Marvin Guerrero-Rangel.
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -186,28 +155,8 @@ Welcome, marvin3742!
 8. Learn a New Skill
 9. Log Out
 Enter your choice:
---- Pending Connection Requests ---
-Request from: Stuti Goyal
-  University: University of South Florida
-  Major: Computer Science
-1. Accept
-2. Reject
-Enter your choice:
-Connection request from Stuti123 accepted.
------------------------------------
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Messages
-8. Learn a New Skill
-9. Log Out
-Enter your choice:
 --- My Network ---
-- Stuti Goyal
-  University: University of South Florida, Major: Computer Science
+You have no connections yet.
 -------------------
 1. Create/Edit My Profile
 2. View My Profile
@@ -225,37 +174,10 @@ Enter your choice:
 3. Back to Main Menu
 Enter your choice:
 Enter recipient's username (must be a connection):
-Enter your message (max 200 chars):
-Message sent to Stuti123 successfully!
----------------------
+You can only message users you are connected with.
 --- Messages Menu ---
 1. Send a New Message
 2. View My Messages
 3. Back to Main Menu
-Enter your choice:
-Enter recipient's username (must be a connection):
-Enter your message (max 200 chars):
-Message sent to Stuti123 successfully!
----------------------
---- Messages Menu ---
-1. Send a New Message
-2. View My Messages
-3. Back to Main Menu
-Enter your choice:
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Messages
-8. Learn a New Skill
-9. Log Out
-Enter your choice:
-You have logged out.
-Welcome to InCollege!
-1. Log In
-2. Create New Account
 Enter your choice:
 End of file reached
-Invalid choice. Please try again.

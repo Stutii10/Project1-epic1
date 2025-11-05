@@ -1,0 +1,352 @@
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Enter a username (max 20 chars, no spaces).
+Username:
+Password requirements:
+- 8 to 12 characters
+- At least one uppercase letter (A-Z)
+- At least one digit (0-9)
+- At least one special character (!@#$... etc.)
+Please enter your password:
+Please enter your password:
+Account created successfully.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, marvin3742!
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return
+Enter your choice:
+=== Basic Information ===
+Enter First Name (required):
+Enter Last Name (required):
+Enter University/College (required):
+Enter Major (required):
+Enter Graduation Year (4 digits, e.g. 2025):
+Enter About Me (optional, press enter to skip):
+Basic information updated.
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return
+Enter your choice:
+Profile saved successfully.
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return
+Enter your choice:
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Enter a username (max 20 chars, no spaces).
+Username:
+Password requirements:
+- 8 to 12 characters
+- At least one uppercase letter (A-Z)
+- At least one digit (0-9)
+- At least one special character (!@#$... etc.)
+Please enter your password:
+Please enter your password:
+Account created successfully.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, Stuti123!
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return
+Enter your choice:
+=== Basic Information ===
+Enter First Name (required):
+Enter Last Name (required):
+Enter University/College (required):
+Enter Major (required):
+Enter About Me (optional, press enter to skip):
+Basic information updated.
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return
+Enter your choice:
+Profile saved successfully.
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return
+Enter your choice:
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+Enter the full name of the person you are looking for:
+--- Found User Profile ---
+Name: Marvin Guerrero-Rangel
+University: University of South Florida
+Major: Computer Science
+Graduation Year: 2025
+About Me: I am a backend systems engineer.
+Experience: None
+Education: None
+-------------------------
+1. Send Connection Request
+2. Back to Main Menu
+Enter your choice:
+Connection request sent to Marvin Guerrero-Rangel.
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Enter a username (max 20 chars, no spaces).
+Username:
+Password requirements:
+- 8 to 12 characters
+- At least one uppercase letter (A-Z)
+- At least one digit (0-9)
+- At least one special character (!@#$... etc.)
+Please enter your password:
+Please enter your password:
+Account created successfully.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, Elise321!
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return
+Enter your choice:
+=== Basic Information ===
+Enter First Name (required):
+Enter Last Name (required):
+Enter University/College (required):
+Enter Major (required):
+Enter About Me (optional, press enter to skip):
+Basic information updated.
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return
+Enter your choice:
+Profile saved successfully.
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return
+Enter your choice:
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+Enter the full name of the person you are looking for:
+--- Found User Profile ---
+Name: Marvin Guerrero-Rangel
+University: University of South Florida
+Major: Computer Science
+Graduation Year: 2025
+About Me: I am a backend systems engineer.
+Experience: None
+Education: None
+-------------------------
+1. Send Connection Request
+2. Back to Main Menu
+Enter your choice:
+Connection request sent to Marvin Guerrero-Rangel.
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, marvin3742!
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+--- Pending Connection Requests ---
+Request from: Stuti Goyal
+  University: University of South Florida
+  Major: Computer Science
+1. Accept
+2. Reject
+Enter your choice:
+Connection request from Stuti123 accepted.
+-----------------------------------
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+--- Pending Connection Requests ---
+Request from: Elise Henry
+  University: University of South Florida
+  Major: Computer Science
+1. Accept
+2. Reject
+Enter your choice:
+Connection request from Elise321 accepted.
+-----------------------------------
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+--- My Network ---
+- Stuti Goyal
+  University: University of South Florida, Major: Computer Science
+- Elise Henry
+  University: University of South Florida, Major: Computer Science
+-------------------
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+--- Messages Menu ---
+1. Send a New Message
+2. View My Messages
+3. Back to Main Menu
+Enter your choice:
+Enter recipient's username (must be a connection):
+Enter your message (max 200 chars):
+Message sent to Elise321 successfully!
+---------------------
+--- Messages Menu ---
+1. Send a New Message
+2. View My Messages
+3. Back to Main Menu
+Enter your choice:
+Enter recipient's username (must be a connection):
+Enter your message (max 200 chars):
+Message sent to Stuti123 successfully!
+---------------------
+--- Messages Menu ---
+1. Send a New Message
+2. View My Messages
+3. Back to Main Menu
+Enter your choice:
+End of file reached
