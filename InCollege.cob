@@ -269,6 +269,10 @@
      88  Message-Recipient-Valid          VALUE 'Y'.
      88  Message-Recipient-Invalid        VALUE 'N'.
 
+ 01  Message-Sender                 PIC X(20).
+ 01  Message-Text                   PIC X(200).
+ 01  Messages-Found-Count           PIC 99 VALUE 0.
+
  PROCEDURE DIVISION.
  Main.
      PERFORM Open-Files
@@ -2460,8 +2464,7 @@
                  WHEN "1"
                      PERFORM Send-Message
                  WHEN "2"
-                     MOVE "View My Messages is under construction." TO WS-MSG
-                     PERFORM OUT-MSG
+                     PERFORM View-My-Messages
                  WHEN "3"
                      CONTINUE
                  WHEN OTHER
@@ -2554,3 +2557,63 @@
      END-STRING
      WRITE Message-Line
      .
+ View-My-Messages.
+     MOVE "--- Your Messages ---" TO WS-MSG
+     PERFORM OUT-MSG
+
+     *> Initialize counter for messages found
+     MOVE 0 TO Messages-Found-Count
+
+     *> Read through messages file and display messages for current user
+     CLOSE MESSAGES-FILE
+     OPEN INPUT MESSAGES-FILE
+     MOVE 'N' TO MSG-EOF
+
+     PERFORM UNTIL MSG-EOF = 'Y'
+         READ MESSAGES-FILE
+             AT END
+                 MOVE 'Y' TO MSG-EOF
+             NOT AT END
+                 *> Parse message: sender|recipient|message
+                 MOVE SPACES TO Message-Sender Message-Recipient Message-Text
+                 UNSTRING Message-Line DELIMITED BY '|'
+                     INTO Message-Sender, Message-Recipient, Message-Text
+                 END-UNSTRING
+
+                 *> Check if this message is for the current user
+                 IF FUNCTION TRIM(Message-Recipient) = FUNCTION TRIM(UserName)
+                     ADD 1 TO Messages-Found-Count
+                     PERFORM Display-Single-Message
+                 END-IF
+         END-READ
+     END-PERFORM
+
+     CLOSE MESSAGES-FILE
+     OPEN EXTEND MESSAGES-FILE
+
+     *> If no messages found, inform the user
+     IF Messages-Found-Count = 0
+         MOVE "You have no messages at this time." TO WS-MSG
+         PERFORM OUT-MSG
+     END-IF
+
+     MOVE "---------------------" TO WS-MSG
+     PERFORM OUT-MSG
+     .
+
+ Display-Single-Message.
+     MOVE SPACES TO WS-MSG
+     STRING "From: " DELIMITED BY SIZE
+            FUNCTION TRIM(Message-Sender) DELIMITED BY SIZE
+            INTO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE SPACES TO WS-MSG
+     STRING "Message: " DELIMITED BY SIZE
+            FUNCTION TRIM(Message-Text) DELIMITED BY SIZE
+            INTO WS-MSG
+     PERFORM OUT-MSG
+
+     MOVE "---" TO WS-MSG
+     PERFORM OUT-MSG
+.
