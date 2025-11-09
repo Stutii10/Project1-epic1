@@ -16,10 +16,24 @@ Welcome to InCollege!
 1. Log In
 2. Create New Account
 Enter your choice:
+Enter a username (max 20 chars, no spaces).
+Username:
+Password requirements:
+- 8 to 12 characters
+- At least one uppercase letter (A-Z)
+- At least one digit (0-9)
+- At least one special character (!@#$... etc.)
+Please enter your password:
+Please enter your password:
+Account created successfully.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
 Please enter your username:
 Please enter your password:
 You have successfully logged in.
-Welcome, marvin3742!
+Welcome, alice!
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -72,24 +86,10 @@ Welcome to InCollege!
 1. Log In
 2. Create New Account
 Enter your choice:
-Enter a username (max 20 chars, no spaces).
-Username:
-Password requirements:
-- 8 to 12 characters
-- At least one uppercase letter (A-Z)
-- At least one digit (0-9)
-- At least one special character (!@#$... etc.)
-Please enter your password:
-Please enter your password:
-Account created successfully.
-Welcome to InCollege!
-1. Log In
-2. Create New Account
-Enter your choice:
 Please enter your username:
 Please enter your password:
 You have successfully logged in.
-Welcome, Stuti123!
+Welcome, bob!
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -113,6 +113,13 @@ Enter University/College (required):
 Enter Major (required):
 Enter About Me (optional, press enter to skip):
 Basic information updated.
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return
+Enter your choice:
+Invalid choice.
 1. Edit Basic Information
 2. Edit Experience
 3. Edit Education
@@ -144,7 +151,7 @@ Enter your choice:
 Please enter your username:
 Please enter your password:
 You have successfully logged in.
-Welcome, marvin3742!
+Welcome, alice!
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -155,9 +162,77 @@ Welcome, marvin3742!
 8. Learn a New Skill
 9. Log Out
 Enter your choice:
---- My Network ---
-You have no connections yet.
--------------------
+Enter the full name of the person you are looking for:
+--- Found User Profile ---
+Name: Bob Smith
+University: UF
+Major: IT
+Graduation Year: 2025
+About Me: 2026
+Experience: None
+Education: None
+-------------------------
+1. Send Connection Request
+2. Back to Main Menu
+Enter your choice:
+Connection request sent to Bob Smith.
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, bob!
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+--- Pending Connection Requests ---
+Request from: Alice Smith
+  University: USF
+  Major: CS
+1. Accept
+2. Reject
+Enter your choice:
+Connection request from alice accepted.
+-----------------------------------
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
+Enter your choice:
+Please enter your username:
+Please enter your password:
+You have successfully logged in.
+Welcome, bob!
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -173,11 +248,28 @@ Enter your choice:
 2. View My Messages
 3. Back to Main Menu
 Enter your choice:
-Enter recipient's username (must be a connection):
-You can only message users you are connected with.
+--- Your Messages ---
+You have no messages at this time.
+---------------------
 --- Messages Menu ---
 1. Send a New Message
 2. View My Messages
 3. Back to Main Menu
+Enter your choice:
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+Enter your choice:
+You have logged out.
+Welcome to InCollege!
+1. Log In
+2. Create New Account
 Enter your choice:
 End of file reached
+Invalid choice. Please try again.

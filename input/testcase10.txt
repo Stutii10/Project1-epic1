@@ -51,7 +51,10 @@ Password1!
 7
 1
 bob
-Testing message delivery.
+Welcome to InCollege!
+1
+bob
+Looking forward to networking with you.
 3
 9
 1

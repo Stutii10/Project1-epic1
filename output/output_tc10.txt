@@ -302,36 +302,10 @@ Enter your choice:
 Enter your choice:
 --- Your Messages ---
 From: alice
-Message: First message.
+Message: Welcome to InCollege!
 ---
 From: alice
-Message: Second message.
----
----------------------
---- Messages Menu ---
-1. Send a New Message
-2. View My Messages
-3. Back to Main Menu
-Enter your choice:
---- Your Messages ---
-From: alice
-Message: First message.
----
-From: alice
-Message: Second message.
----
----------------------
---- Messages Menu ---
-1. Send a New Message
-2. View My Messages
-3. Back to Main Menu
-Enter your choice:
---- Your Messages ---
-From: alice
-Message: First message.
----
-From: alice
-Message: Second message.
+Message: Looking forward to networking with you.
 ---
 ---------------------
 --- Messages Menu ---

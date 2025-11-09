@@ -4,6 +4,9 @@ Password1!
 2
 bob
 Password2!
+2
+charlie
+Password3!
 1
 alice
 Password1!
@@ -33,6 +36,20 @@ IT
 5
 9
 1
+charlie
+Password3!
+1
+1
+Charlie
+Brown
+MIT
+Engineering
+2025
+
+4
+5
+9
+1
 alice
 Password1!
 4
@@ -46,12 +63,19 @@ Password2!
 1
 9
 1
+charlie
+Password3!
+4
+Bob Smith
+1
+9
+1
 alice
 Password1!
 7
 1
 bob
-Testing message delivery.
+Hello from Alice!
 3
 9
 1
