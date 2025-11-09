@@ -7,9 +7,6 @@ Password2!
 2
 charlie
 Password3!
-2
-diana
-Password4!
 1
 alice
 Password1!
@@ -30,10 +27,10 @@ Password2!
 1
 1
 Bob
-Smith
+Johnson
 UF
 IT
-2026
+2025
 
 4
 5
@@ -53,24 +50,10 @@ Engineering
 5
 9
 1
-diana
-Password4!
-1
-1
-Diana
-Prince
-Stanford
-Physics
-2026
-
-4
-5
-9
-1
 alice
 Password1!
 4
-Bob Smith
+Bob Johnson
 1
 9
 1
@@ -83,27 +66,12 @@ Password2!
 charlie
 Password3!
 4
-Bob Smith
+Bob Johnson
 1
 9
 1
 bob
 Password2!
-5
-1
-9
-1
-diana
-Password4!
-4
-Bob Smith
-1
-9
-1
-bob
-Password2!
-5
-1
 5
 1
 9
@@ -113,7 +81,7 @@ Password1!
 7
 1
 bob
-Hi Bob!
+Hi Bob! Glad we connected on InCollege.
 3
 9
 1
@@ -122,16 +90,7 @@ Password3!
 7
 1
 bob
-Hey there buddy!
-3
-9
-1
-diana
-Password4!
-7
-1
-bob
-Good to connect with you.
+Hey there buddy! Check out this job posting.
 3
 9
 1
