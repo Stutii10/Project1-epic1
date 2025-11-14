@@ -1356,30 +1356,33 @@ Validate-Password.
 
      SET Username-Exists TO TRUE
 
-     *> --- Username step ---
-     PERFORM UNTIL Username-Not-Exists
-         MOVE "Enter a username (max 20 chars, no spaces)." TO WS-MSG
-         PERFORM OUT-MSG
-         MOVE "Username: " TO WS-MSG
-         PERFORM OUT-MSG
+    *> --- Username step ---
+    PERFORM UNTIL Username-Not-Exists OR EOF-IN = 'Y'
+        MOVE "Enter a username (max 20 chars, no spaces)." TO WS-MSG
+        PERFORM OUT-MSG
+        MOVE "Username: " TO WS-MSG
+        PERFORM OUT-MSG
 
-         PERFORM READ-NEXT-INPUT
-         MOVE FUNCTION TRIM(InLine) TO UserName
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN = 'Y'
+            EXIT PERFORM
+        END-IF
+        MOVE FUNCTION TRIM(InLine) TO UserName
 
-         PERFORM Compute-Name-Length
-         IF NameLen = 0
-             MOVE "Username cannot be empty." TO WS-MSG
-             PERFORM OUT-MSG
-         ELSE
-             PERFORM Check-Username-Exists
-             IF Username-Exists
-                 MOVE "Username is already taken. Try another." TO WS-MSG
-                 PERFORM OUT-MSG
-             ELSE
-                 SET Username-Not-Exists TO TRUE
-             END-IF
-         END-IF
-     END-PERFORM
+        PERFORM Compute-Name-Length
+        IF NameLen = 0
+            MOVE "Username cannot be empty." TO WS-MSG
+            PERFORM OUT-MSG
+        ELSE
+            PERFORM Check-Username-Exists
+            IF Username-Exists
+                MOVE "Username is already taken. Try another." TO WS-MSG
+                PERFORM OUT-MSG
+            ELSE
+                SET Username-Not-Exists TO TRUE
+            END-IF
+        END-IF
+    END-PERFORM
 
      *> --- Password step ---
      MOVE "Password requirements:" TO WS-MSG
@@ -1393,19 +1396,27 @@ Validate-Password.
      MOVE "- At least one special character (!@#$... etc.)" TO WS-MSG
      PERFORM OUT-MSG
 
-     SET Pass-Is-Invalid TO TRUE
-     PERFORM UNTIL Pass-Is-Valid
-         MOVE "Please enter your password: " TO WS-MSG
-         PERFORM OUT-MSG
-         PERFORM READ-NEXT-INPUT
-         MOVE FUNCTION TRIM(InLine) TO UserPassword
+    SET Pass-Is-Invalid TO TRUE
+    PERFORM UNTIL Pass-Is-Valid OR EOF-IN = 'Y'
+        MOVE "Please enter your password: " TO WS-MSG
+        PERFORM OUT-MSG
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN = 'Y'
+            EXIT PERFORM
+        END-IF
+        MOVE FUNCTION TRIM(InLine) TO UserPassword
 
-         PERFORM Validate-Password
-         IF Pass-Is-Invalid
-             MOVE "It doesn't meet requirements, try again." TO WS-MSG
-             PERFORM OUT-MSG
-         END-IF
-     END-PERFORM
+        PERFORM Validate-Password
+        IF Pass-Is-Invalid
+            MOVE "It doesn't meet requirements, try again." TO WS-MSG
+            PERFORM OUT-MSG
+        END-IF
+    END-PERFORM
+
+     *> --- Check if EOF reached during registration ---
+     IF EOF-IN = 'Y'
+         EXIT PARAGRAPH
+     END-IF
 
      *> --- Save in-memory ---
      ADD 1 TO Account-Count
