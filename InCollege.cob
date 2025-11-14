@@ -342,7 +342,7 @@
                          PERFORM OUT-MSG
                          SET USER-NOT-LOGGED-IN TO TRUE
                      WHEN OTHER
-                         MOVE "Invalid choice." TO WS-MSG
+                         MOVE "Invalid choice. Please enter 1-9." TO WS-MSG
                          PERFORM OUT-MSG
                  END-EVALUATE
              END-IF
@@ -1446,7 +1446,7 @@ Validate-Password.
                  WHEN "4"
                      CONTINUE
                  WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
+                     MOVE "Invalid choice. Please enter 1-4." TO WS-MSG
                      PERFORM OUT-MSG
              END-EVALUATE
          END-IF
@@ -1490,7 +1490,7 @@ Validate-Password.
                  WHEN "2"
                      CONTINUE
                  WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
+                     MOVE "Invalid choice. Please enter 1-2." TO WS-MSG
                      PERFORM OUT-MSG
              END-EVALUATE
          END-IF
@@ -2068,7 +2068,7 @@ Validate-Password.
                  WHEN "2"
                      CONTINUE
                  WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
+                     MOVE "Invalid choice. Please enter 1-2." TO WS-MSG
                      PERFORM OUT-MSG
              END-EVALUATE
          END-IF
@@ -2256,7 +2256,7 @@ Validate-Password.
                  WHEN "5"
                      CONTINUE
                  WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
+                     MOVE "Invalid choice. Please enter 1-5." TO WS-MSG
                      PERFORM OUT-MSG
              END-EVALUATE
          END-IF
@@ -2273,7 +2273,7 @@ Validate-Password.
                  WHEN "1"
                      CONTINUE
                  WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
+                     MOVE "Invalid choice. Please enter 1." TO WS-MSG
                      PERFORM OUT-MSG
              END-EVALUATE
          END-IF
