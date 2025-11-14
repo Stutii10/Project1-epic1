@@ -2529,27 +2529,42 @@ Validate-Password.
      END-IF
      .
 
- Validate-Message-Recipient.
-     SET Message-Recipient-Invalid TO TRUE
+Validate-Message-Recipient.
+    SET Message-Recipient-Invalid TO TRUE
 
-     *> Check if recipient is a connected user (status = 'A')
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
-         IF Conn-Status(I) = "A"
-             IF (Conn-Sender(I) = UserName AND
-                 Conn-Recipient(I) = Message-Recipient) OR
-                (Conn-Sender(I) = Message-Recipient AND
-                 Conn-Recipient(I) = UserName)
-                 SET Message-Recipient-Valid TO TRUE
-                 EXIT PERFORM
-             END-IF
-         END-IF
-     END-PERFORM
+    *> Check if recipient is a connected user (status = 'A')
+    PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
+        IF Conn-Status(I) = "A"
+            IF (Conn-Sender(I) = UserName AND
+                Conn-Recipient(I) = Message-Recipient) OR
+               (Conn-Sender(I) = Message-Recipient AND
+                Conn-Recipient(I) = UserName)
+                SET Message-Recipient-Valid TO TRUE
+                EXIT PERFORM
+            END-IF
+        END-IF
+    END-PERFORM
 
-     IF Message-Recipient-Invalid
-         MOVE "You can only message users you are connected with." TO WS-MSG
-         PERFORM OUT-MSG
-     END-IF
-     .
+    IF Message-Recipient-Valid
+        SET Message-Recipient-Invalid TO TRUE
+        PERFORM VARYING I FROM 1 BY 1 UNTIL I > Account-Count
+            IF Message-Recipient = Acc-Username(I)
+                SET Message-Recipient-Valid TO TRUE
+                EXIT PERFORM
+            END-IF
+        END-PERFORM
+        
+        IF Message-Recipient-Invalid
+            MOVE "This user's account no longer exists." TO WS-MSG
+            PERFORM OUT-MSG
+        END-IF
+    END-IF
+
+    IF Message-Recipient-Invalid
+        MOVE "You can only message users you are connected with." TO WS-MSG
+        PERFORM OUT-MSG
+    END-IF
+    .
 
  Append-Message-To-Disk.
      *> Record format: sender|recipient|message
