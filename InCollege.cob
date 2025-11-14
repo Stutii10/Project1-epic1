@@ -1515,9 +1515,8 @@
  Validate-Connection-Request.
      SET Connection-Is-Valid TO TRUE
 
-     *> Check if trying to connect with yourself
      IF UserName = Search-Username
-         MOVE "You cannot send a connection request to yourself." TO WS-MSG
+         MOVE "You cannot send yourself a connection request." TO WS-MSG
          PERFORM OUT-MSG
          SET Connection-Is-Invalid TO TRUE
          EXIT PARAGRAPH
