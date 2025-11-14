@@ -1,7 +1,10 @@
-Welcome to InCollege!
+--- Welcome to InCollege! ---
+
+0. Exit Program
 1. Log In
 2. Create New Account
-Enter your choice:
+
+Enter your choice (0-2):
 Enter a username (max 20 chars, no spaces).
 Username:
 Password requirements:
@@ -12,28 +15,20 @@ Password requirements:
 Please enter your password:
 Please enter your password:
 Account created successfully.
-Welcome to InCollege!
+--- Welcome to InCollege! ---
+
+0. Exit Program
 1. Log In
 2. Create New Account
-Enter your choice:
-Enter a username (max 20 chars, no spaces).
-Username:
-Password requirements:
-- 8 to 12 characters
-- At least one uppercase letter (A-Z)
-- At least one digit (0-9)
-- At least one special character (!@#$... etc.)
-Please enter your password:
-Please enter your password:
-Account created successfully.
-Welcome to InCollege!
-1. Log In
-2. Create New Account
-Enter your choice:
+
+Enter your choice (0-2):
 Please enter your username:
 Please enter your password:
 You have successfully logged in.
-Welcome, alice!
+Welcome, john_doe!
+--- Main Menu ---
+
+0. Exit Program
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -43,13 +38,18 @@ Welcome, alice!
 7. Messages
 8. Learn a New Skill
 9. Log Out
-Enter your choice:
+
+Enter your choice (0-9):
+--- Profile Management ---
+
+0. Exit Program
 1. Edit Basic Information
 2. Edit Experience
 3. Edit Education
 4. Save Profile
-5. Return
-Enter your choice:
+5. Return to Main Menu
+
+Enter your choice (0-5):
 === Basic Information ===
 Enter First Name (required):
 Enter Last Name (required):
@@ -58,19 +58,48 @@ Enter Major (required):
 Enter Graduation Year (4 digits, e.g. 2025):
 Enter About Me (optional, press enter to skip):
 Basic information updated.
+--- Profile Management ---
+
+0. Exit Program
 1. Edit Basic Information
 2. Edit Experience
 3. Edit Education
 4. Save Profile
-5. Return
-Enter your choice:
+5. Return to Main Menu
+
+Enter your choice (0-5):
+=== Experience (up to 3 entries) ===
+How many experience entries to add (1-3)?
+=== Experience Entry 1 ===
+Enter Job Title:
+Enter Company/Organization:
+Enter Dates (e.g. Summer 2024):
+Enter Description (optional):
+Experience information updated.
+--- Profile Management ---
+
+0. Exit Program
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return to Main Menu
+
+Enter your choice (0-5):
 Profile saved successfully.
+--- Profile Management ---
+
+0. Exit Program
 1. Edit Basic Information
 2. Edit Experience
 3. Edit Education
 4. Save Profile
-5. Return
-Enter your choice:
+5. Return to Main Menu
+
+Enter your choice (0-5):
+--- Main Menu ---
+
+0. Exit Program
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -80,16 +109,67 @@ Enter your choice:
 7. Messages
 8. Learn a New Skill
 9. Log Out
-Enter your choice:
+
+Enter your choice (0-9):
+--- Your Profile ---
+Name: John Doe
+University: University of Florida
+Major: Computer Science
+Graduation Year: 2025
+About Me: I am a software engineering student passionate about web development
+Experience:
+  Title: Software Engineer Intern
+  Company: Google
+  Dates: Summer 2024
+  Description: Developed features for Google Search
+Education: None
+--------------------
+--- Main Menu ---
+
+0. Exit Program
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+
+Enter your choice (0-9):
 You have logged out.
-Welcome to InCollege!
+--- Welcome to InCollege! ---
+
+0. Exit Program
 1. Log In
 2. Create New Account
-Enter your choice:
+
+Enter your choice (0-2):
+Enter a username (max 20 chars, no spaces).
+Username:
+Password requirements:
+- 8 to 12 characters
+- At least one uppercase letter (A-Z)
+- At least one digit (0-9)
+- At least one special character (!@#$... etc.)
+Please enter your password:
+Please enter your password:
+Account created successfully.
+--- Welcome to InCollege! ---
+
+0. Exit Program
+1. Log In
+2. Create New Account
+
+Enter your choice (0-2):
 Please enter your username:
 Please enter your password:
 You have successfully logged in.
-Welcome, bob!
+Welcome, jane_smith!
+--- Main Menu ---
+
+0. Exit Program
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -99,13 +179,18 @@ Welcome, bob!
 7. Messages
 8. Learn a New Skill
 9. Log Out
-Enter your choice:
+
+Enter your choice (0-9):
+--- Profile Management ---
+
+0. Exit Program
 1. Edit Basic Information
 2. Edit Experience
 3. Edit Education
 4. Save Profile
-5. Return
-Enter your choice:
+5. Return to Main Menu
+
+Enter your choice (0-5):
 === Basic Information ===
 Enter First Name (required):
 Enter Last Name (required):
@@ -113,26 +198,59 @@ Enter University/College (required):
 Enter Major (required):
 Enter About Me (optional, press enter to skip):
 Basic information updated.
+--- Profile Management ---
+
+0. Exit Program
 1. Edit Basic Information
 2. Edit Experience
 3. Edit Education
 4. Save Profile
-5. Return
-Enter your choice:
-Invalid choice.
+5. Return to Main Menu
+
+Enter your choice (0-5):
+Invalid choice. Please enter 0-5.
+--- Profile Management ---
+
+0. Exit Program
 1. Edit Basic Information
 2. Edit Experience
 3. Edit Education
 4. Save Profile
-5. Return
-Enter your choice:
+5. Return to Main Menu
+
+Enter your choice (0-5):
+=== Experience (up to 3 entries) ===
+How many experience entries to add (1-3)?
+=== Experience Entry 1 ===
+Enter Job Title:
+Enter Company/Organization:
+Enter Dates (e.g. Summer 2024):
+Enter Description (optional):
+Experience information updated.
+--- Profile Management ---
+
+0. Exit Program
+1. Edit Basic Information
+2. Edit Experience
+3. Edit Education
+4. Save Profile
+5. Return to Main Menu
+
+Enter your choice (0-5):
 Profile saved successfully.
+--- Profile Management ---
+
+0. Exit Program
 1. Edit Basic Information
 2. Edit Experience
 3. Edit Education
 4. Save Profile
-5. Return
-Enter your choice:
+5. Return to Main Menu
+
+Enter your choice (0-5):
+--- Main Menu ---
+
+0. Exit Program
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -142,16 +260,23 @@ Enter your choice:
 7. Messages
 8. Learn a New Skill
 9. Log Out
-Enter your choice:
+
+Enter your choice (0-9):
 You have logged out.
-Welcome to InCollege!
+--- Welcome to InCollege! ---
+
+0. Exit Program
 1. Log In
 2. Create New Account
-Enter your choice:
+
+Enter your choice (0-2):
 Please enter your username:
 Please enter your password:
 You have successfully logged in.
-Welcome, alice!
+Welcome, john_doe!
+--- Main Menu ---
+
+0. Exit Program
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -161,21 +286,33 @@ Welcome, alice!
 7. Messages
 8. Learn a New Skill
 9. Log Out
-Enter your choice:
+
+Enter your choice (0-9):
 Enter the full name of the person you are looking for:
 --- Found User Profile ---
-Name: Bob Smith
-University: UF
-Major: IT
+Name: Jane Smith
+University: University of Tampa
+Major: Information Technology
 Graduation Year: 2025
 About Me: 2026
-Experience: None
+Experience:
+  Title: Cybersecurity Intern
+  Company: SecureNet Solutions
+  Dates: Summer 2024
+  Description: Assisted with security audits
 Education: None
 -------------------------
+--- Connection Options ---
+
+0. Exit Program
 1. Send Connection Request
-2. Back to Main Menu
-Enter your choice:
-Connection request sent to Bob Smith.
+2. Return to Main Menu
+
+Enter your choice (0-2):
+Connection request sent to Jane Smith.
+--- Main Menu ---
+
+0. Exit Program
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -185,16 +322,50 @@ Connection request sent to Bob Smith.
 7. Messages
 8. Learn a New Skill
 9. Log Out
-Enter your choice:
+
+Enter your choice (0-9):
+--- Your Profile ---
+Name: John Doe
+University: University of Florida
+Major: Computer Science
+Graduation Year: 2025
+About Me: I am a software engineering student passionate about web development
+Experience:
+  Title: Software Engineer Intern
+  Company: Google
+  Dates: Summer 2024
+  Description: Developed features for Google Search
+Education: None
+--------------------
+--- Main Menu ---
+
+0. Exit Program
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+
+Enter your choice (0-9):
 You have logged out.
-Welcome to InCollege!
+--- Welcome to InCollege! ---
+
+0. Exit Program
 1. Log In
 2. Create New Account
-Enter your choice:
+
+Enter your choice (0-2):
 Please enter your username:
 Please enter your password:
 You have successfully logged in.
-Welcome, bob!
+Welcome, jane_smith!
+--- Main Menu ---
+
+0. Exit Program
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -204,16 +375,20 @@ Welcome, bob!
 7. Messages
 8. Learn a New Skill
 9. Log Out
-Enter your choice:
+
+Enter your choice (0-9):
 --- Pending Connection Requests ---
-Request from: Alice Smith
-  University: USF
-  Major: CS
+Request from: John Doe
+  University: University of Florida
+  Major: Computer Science
 1. Accept
 2. Reject
 Enter your choice:
-Connection request from alice accepted.
+Connection request from john_doe accepted.
 -----------------------------------
+--- Main Menu ---
+
+0. Exit Program
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -223,16 +398,57 @@ Connection request from alice accepted.
 7. Messages
 8. Learn a New Skill
 9. Log Out
-Enter your choice:
+
+Enter your choice (0-9):
+--- Messages Menu ---
+
+0. Exit Program
+1. Send a New Message
+2. View My Messages
+3. Return to Main Menu
+
+Enter your choice (0-3):
+Enter recipient's username (must be a connection):
+Enter your message (max 200 chars):
+Message sent to john_doe successfully!
+---------------------
+--- Messages Menu ---
+
+0. Exit Program
+1. Send a New Message
+2. View My Messages
+3. Return to Main Menu
+
+Enter your choice (0-3):
+--- Main Menu ---
+
+0. Exit Program
+1. Create/Edit My Profile
+2. View My Profile
+3. Search for a job
+4. Find someone you know
+5. View My Pending Connection Requests
+6. View My Network
+7. Messages
+8. Learn a New Skill
+9. Log Out
+
+Enter your choice (0-9):
 You have logged out.
-Welcome to InCollege!
+--- Welcome to InCollege! ---
+
+0. Exit Program
 1. Log In
 2. Create New Account
-Enter your choice:
+
+Enter your choice (0-2):
 Please enter your username:
 Please enter your password:
 You have successfully logged in.
-Welcome, alice!
+Welcome, john_doe!
+--- Main Menu ---
+
+0. Exit Program
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -242,77 +458,32 @@ Welcome, alice!
 7. Messages
 8. Learn a New Skill
 9. Log Out
-Enter your choice:
+
+Enter your choice (0-9):
 --- Messages Menu ---
+
+0. Exit Program
 1. Send a New Message
 2. View My Messages
-3. Back to Main Menu
-Enter your choice:
-Enter recipient's username (must be a connection):
-Enter your message (max 200 chars):
-Message sent to bob successfully!
----------------------
---- Messages Menu ---
-1. Send a New Message
-2. View My Messages
-3. Back to Main Menu
-Enter your choice:
-Enter recipient's username (must be a connection):
-Enter your message (max 200 chars):
-Message sent to bob successfully!
----------------------
---- Messages Menu ---
-1. Send a New Message
-2. View My Messages
-3. Back to Main Menu
-Enter your choice:
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Messages
-8. Learn a New Skill
-9. Log Out
-Enter your choice:
-You have logged out.
-Welcome to InCollege!
-1. Log In
-2. Create New Account
-Enter your choice:
-Please enter your username:
-Please enter your password:
-You have successfully logged in.
-Welcome, bob!
-1. Create/Edit My Profile
-2. View My Profile
-3. Search for a job
-4. Find someone you know
-5. View My Pending Connection Requests
-6. View My Network
-7. Messages
-8. Learn a New Skill
-9. Log Out
-Enter your choice:
---- Messages Menu ---
-1. Send a New Message
-2. View My Messages
-3. Back to Main Menu
-Enter your choice:
+3. Return to Main Menu
+
+Enter your choice (0-3):
 --- Your Messages ---
-From: alice
-Message: Hey Bob! Glad we connected.
----
-From: alice
-Message: Hope you are doing well!
+From: jane_smith
+Message: Hello John! Great to connect with you. Thanks for reaching out!
 ---
 ---------------------
 --- Messages Menu ---
+
+0. Exit Program
 1. Send a New Message
 2. View My Messages
-3. Back to Main Menu
-Enter your choice:
+3. Return to Main Menu
+
+Enter your choice (0-3):
+--- Main Menu ---
+
+0. Exit Program
 1. Create/Edit My Profile
 2. View My Profile
 3. Search for a job
@@ -322,11 +493,15 @@ Enter your choice:
 7. Messages
 8. Learn a New Skill
 9. Log Out
-Enter your choice:
+
+Enter your choice (0-9):
 You have logged out.
-Welcome to InCollege!
+--- Welcome to InCollege! ---
+
+0. Exit Program
 1. Log In
 2. Create New Account
-Enter your choice:
-End of file reached
-Invalid choice. Please try again.
+
+Enter your choice (0-2):
+Thank you for using InCollege!
+Goodbye!

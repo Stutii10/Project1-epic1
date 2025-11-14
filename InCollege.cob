@@ -1,5 +1,5 @@
 *> =======================================================
-*> InCollege - Week 7: Browse Jobs & Applications with Report
+*> InCollege - Week 10
 *> Inputs  : InCollege-Input.txt
 *> Outputs : InCollege-Output.txt
 *> Accounts: Accounts.dat (username|password per line)
@@ -293,15 +293,17 @@
              END-IF
              MOVE FUNCTION NUMVAL (InLine) TO UserChoice
 
-             EVALUATE UserChoice
-                 WHEN 1
-                     PERFORM Do-Login
-                 WHEN 2
-                     PERFORM Do-Registration
-                 WHEN OTHER
-                     MOVE "Invalid choice. Please try again." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
+            EVALUATE UserChoice
+                WHEN 1
+                    PERFORM Do-Login
+                WHEN 2
+                    PERFORM Do-Registration
+                WHEN OTHER
+                    IF EOF-IN NOT = "Y"
+                        MOVE "Invalid choice. Please enter 0-2." TO WS-MSG
+                        PERFORM OUT-MSG
+                    END-IF
+            END-EVALUATE
          END-PERFORM
 
          *> Skip main app if not logged in due to EOF
@@ -341,9 +343,9 @@
                          MOVE "You have logged out." TO WS-MSG
                          PERFORM OUT-MSG
                          SET USER-NOT-LOGGED-IN TO TRUE
-                     WHEN OTHER
-                         MOVE "Invalid choice." TO WS-MSG
-                         PERFORM OUT-MSG
+                    WHEN OTHER
+                        MOVE "Invalid choice. Please enter 0-9." TO WS-MSG
+                        PERFORM OUT-MSG
                  END-EVALUATE
              END-IF
          END-PERFORM
@@ -447,78 +449,116 @@
      WRITE OutLine
      .
 
- *> Consume one line from input file per prompt
- READ-NEXT-INPUT.
-     IF EOF-IN = 'Y'
-         MOVE SPACES TO InLine
-         EXIT PARAGRAPH
-     END-IF
-     READ INPUT-FILE
-         AT END
-             MOVE 'Y' TO EOF-IN
-             MOVE "End of file reached" TO WS-MSG
-             PERFORM OUT-MSG
-         NOT AT END
-             MOVE FUNCTION TRIM(InLine) TO WS-INPUT-VALUE
-     END-READ
-     .
+*> Consume one line from input file per prompt
+READ-NEXT-INPUT.
+    IF EOF-IN = 'Y'
+        MOVE SPACES TO InLine
+        EXIT PARAGRAPH
+    END-IF
+    READ INPUT-FILE
+        AT END
+            MOVE 'Y' TO EOF-IN
+            MOVE "End of file reached" TO WS-MSG
+            PERFORM OUT-MSG
+        NOT AT END
+            MOVE FUNCTION TRIM(InLine) TO WS-INPUT-VALUE
+            *> Check for exit command
+            IF WS-INPUT-VALUE = "0" OR 
+               FUNCTION UPPER-CASE(WS-INPUT-VALUE) = "EXIT"
+                MOVE "Thank you for using InCollege!" TO WS-MSG
+                PERFORM OUT-MSG
+                MOVE "Goodbye!" TO WS-MSG
+                PERFORM OUT-MSG
+                MOVE 'Y' TO EOF-IN
+            END-IF
+    END-READ
+    .
 
  *> -----------------------------
  *> LOGIN MENU
  *> -----------------------------
- Show-Login-Menu.
-     MOVE "Welcome to InCollege!" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "1. Log In" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "2. Create New Account" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "Enter your choice: " TO WS-MSG
-     PERFORM OUT-MSG
-     .
+Show-Login-Menu.
+    MOVE "--- Welcome to InCollege! ---" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "0. Exit Program" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "1. Log In" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "2. Create New Account" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "Enter your choice (0-2): " TO WS-MSG
+    PERFORM OUT-MSG
+    .
 
  *> -----------------------------
  *> PROFILE MANAGEMENT PARAGRAPHS
  *> -----------------------------
- Edit-Basic-Info.
-     MOVE "=== Basic Information ===" TO WS-MSG
-     PERFORM OUT-MSG
+Edit-Basic-Info.
+    MOVE "=== Basic Information ===" TO WS-MSG
+    PERFORM OUT-MSG
 
-     MOVE "Enter First Name (required): " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Prof-First-Name
+    MOVE "Enter First Name (required): " TO WS-MSG
+    PERFORM OUT-MSG
+    PERFORM READ-NEXT-INPUT
+    IF EOF-IN = 'Y'
+        EXIT PARAGRAPH
+    END-IF
+    MOVE FUNCTION TRIM(InLine) TO Prof-First-Name
 
-     MOVE "Enter Last Name (required): " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Prof-Last-Name
+    MOVE "Enter Last Name (required): " TO WS-MSG
+    PERFORM OUT-MSG
+    PERFORM READ-NEXT-INPUT
+    IF EOF-IN = 'Y'
+        EXIT PARAGRAPH
+    END-IF
+    MOVE FUNCTION TRIM(InLine) TO Prof-Last-Name
 
-     MOVE "Enter University/College (required): " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Prof-University
+    MOVE "Enter University/College (required): " TO WS-MSG
+    PERFORM OUT-MSG
+    PERFORM READ-NEXT-INPUT
+    IF EOF-IN = 'Y'
+        EXIT PARAGRAPH
+    END-IF
+    MOVE FUNCTION TRIM(InLine) TO Prof-University
 
-     MOVE "Enter Major (required): " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Prof-Major
+    MOVE "Enter Major (required): " TO WS-MSG
+    PERFORM OUT-MSG
+    PERFORM READ-NEXT-INPUT
+    IF EOF-IN = 'Y'
+        EXIT PARAGRAPH
+    END-IF
+    MOVE FUNCTION TRIM(InLine) TO Prof-Major
 
-     PERFORM UNTIL Year-Is-Valid
-         MOVE "Enter Graduation Year (4 digits, e.g. 2025): " TO WS-MSG
-         PERFORM OUT-MSG
-         PERFORM READ-NEXT-INPUT
-         MOVE FUNCTION TRIM(InLine) TO Prof-Grad-Year
-         PERFORM Validate-Graduation-Year
-         IF Year-Is-Invalid
-             MOVE "Invalid year. Please enter a 4-digit year." TO WS-MSG
-             PERFORM OUT-MSG
-         END-IF
-     END-PERFORM
+    PERFORM UNTIL Year-Is-Valid OR EOF-IN = 'Y'
+        MOVE "Enter Graduation Year (4 digits, e.g. 2025): " TO WS-MSG
+        PERFORM OUT-MSG
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN = 'Y'
+            EXIT PERFORM
+        END-IF
+        MOVE FUNCTION TRIM(InLine) TO Prof-Grad-Year
+        PERFORM Validate-Graduation-Year
+        IF Year-Is-Invalid
+            MOVE "Invalid year. Please enter a 4-digit year." TO WS-MSG
+            PERFORM OUT-MSG
+        END-IF
+    END-PERFORM
+
+     *> Check if EOF reached during graduation year input
+     IF EOF-IN = 'Y'
+         EXIT PARAGRAPH
+     END-IF
 
      MOVE "Enter About Me (optional, press enter to skip): " TO WS-MSG
      PERFORM OUT-MSG
      PERFORM READ-NEXT-INPUT
+     IF EOF-IN = 'Y'
+         EXIT PARAGRAPH
+     END-IF
      MOVE FUNCTION TRIM(InLine) TO Prof-About-Me
 
      MOVE "Basic information updated." TO WS-MSG
@@ -1166,45 +1206,57 @@
  *> -----------------------------
  *> Helper: password validation
  *> -----------------------------
- Validate-Password.
-     SET Pass-Is-Invalid TO TRUE
-     MOVE 0 TO Has-Upper Has-Digit Has-Special
-     MOVE 0 TO PassLen
+Validate-Password.
+   SET Pass-Is-Invalid TO TRUE
+   MOVE 0 TO Has-Upper Has-Digit Has-Special
+   MOVE 0 TO PassLen
 
-     *> length check (stop at first space)
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > 20
-         MOVE UserPassword(I:1) TO TempChar
-         IF TempChar = SPACE
-             EXIT PERFORM
-         ELSE
-             ADD 1 TO PassLen
-         END-IF
-     END-PERFORM
+   *> First, calculate the actual password length (stop at first space or end)
+   PERFORM VARYING I FROM 1 BY 1 UNTIL I > 20
+       MOVE UserPassword(I:1) TO TempChar
+       IF TempChar = SPACE
+           EXIT PERFORM
+       END-IF
+       ADD 1 TO PassLen
+   END-PERFORM
 
-     IF PassLen < 8 OR PassLen > 12
-         EXIT PARAGRAPH
-     END-IF
+   *> Check if password contains spaces in the middle (if length doesn't match trimmed length)
+   IF FUNCTION LENGTH(FUNCTION TRIM(UserPassword)) NOT = PassLen
+       MOVE "Password cannot contain spaces." TO WS-MSG
+       PERFORM OUT-MSG
+       EXIT PARAGRAPH
+   END-IF
 
-     *> character checks
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > PassLen
-         MOVE UserPassword(I:1) TO TempChar
-         IF TempChar >= "A" AND TempChar <= "Z"
-             MOVE 1 TO Has-Upper
-         END-IF
-         IF TempChar >= "0" AND TempChar <= "9"
-             MOVE 1 TO Has-Digit
-         END-IF
-         MOVE 0 TO CountVar
-         INSPECT Specials TALLYING CountVar FOR ALL TempChar
-         IF CountVar > 0
-             MOVE 1 TO Has-Special
-         END-IF
-     END-PERFORM
+    *> length check
+    IF PassLen < 8 OR PassLen > 12
+        MOVE "Password must be 8-12 characters long." TO WS-MSG
+        PERFORM OUT-MSG
+        EXIT PARAGRAPH
+    END-IF
 
-     IF Has-Upper = 1 AND Has-Digit = 1 AND Has-Special = 1
-         SET Pass-Is-Valid TO TRUE
-     END-IF
-     .
+    *> character checks
+    PERFORM VARYING I FROM 1 BY 1 UNTIL I > PassLen
+        MOVE UserPassword(I:1) TO TempChar
+        IF TempChar >= "A" AND TempChar <= "Z"
+            MOVE 1 TO Has-Upper
+        END-IF
+        IF TempChar >= "0" AND TempChar <= "9"
+            MOVE 1 TO Has-Digit
+        END-IF
+        MOVE 0 TO CountVar
+        INSPECT Specials TALLYING CountVar FOR ALL TempChar
+        IF CountVar > 0
+            MOVE 1 TO Has-Special
+        END-IF
+    END-PERFORM
+
+    IF Has-Upper = 1 AND Has-Digit = 1 AND Has-Special = 1
+        SET Pass-Is-Valid TO TRUE
+    ELSE
+        MOVE "Password must have uppercase, digit, and special character." TO WS-MSG
+        PERFORM OUT-MSG
+    END-IF
+    .
 
  *> -----------------------------
  *> Load accounts from disk at startup
@@ -1331,30 +1383,33 @@
 
      SET Username-Exists TO TRUE
 
-     *> --- Username step ---
-     PERFORM UNTIL Username-Not-Exists
-         MOVE "Enter a username (max 20 chars, no spaces)." TO WS-MSG
-         PERFORM OUT-MSG
-         MOVE "Username: " TO WS-MSG
-         PERFORM OUT-MSG
+    *> --- Username step ---
+    PERFORM UNTIL Username-Not-Exists OR EOF-IN = 'Y'
+        MOVE "Enter a username (max 20 chars, no spaces)." TO WS-MSG
+        PERFORM OUT-MSG
+        MOVE "Username: " TO WS-MSG
+        PERFORM OUT-MSG
 
-         PERFORM READ-NEXT-INPUT
-         MOVE FUNCTION TRIM(InLine) TO UserName
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN = 'Y'
+            EXIT PERFORM
+        END-IF
+        MOVE FUNCTION TRIM(InLine) TO UserName
 
-         PERFORM Compute-Name-Length
-         IF NameLen = 0
-             MOVE "Username cannot be empty." TO WS-MSG
-             PERFORM OUT-MSG
-         ELSE
-             PERFORM Check-Username-Exists
-             IF Username-Exists
-                 MOVE "Username is already taken. Try another." TO WS-MSG
-                 PERFORM OUT-MSG
-             ELSE
-                 SET Username-Not-Exists TO TRUE
-             END-IF
-         END-IF
-     END-PERFORM
+        PERFORM Compute-Name-Length
+        IF NameLen = 0
+            MOVE "Username cannot be empty." TO WS-MSG
+            PERFORM OUT-MSG
+        ELSE
+            PERFORM Check-Username-Exists
+            IF Username-Exists
+                MOVE "Username is already taken. Try another." TO WS-MSG
+                PERFORM OUT-MSG
+            ELSE
+                SET Username-Not-Exists TO TRUE
+            END-IF
+        END-IF
+    END-PERFORM
 
      *> --- Password step ---
      MOVE "Password requirements:" TO WS-MSG
@@ -1368,19 +1423,27 @@
      MOVE "- At least one special character (!@#$... etc.)" TO WS-MSG
      PERFORM OUT-MSG
 
-     SET Pass-Is-Invalid TO TRUE
-     PERFORM UNTIL Pass-Is-Valid
-         MOVE "Please enter your password: " TO WS-MSG
-         PERFORM OUT-MSG
-         PERFORM READ-NEXT-INPUT
-         MOVE FUNCTION TRIM(InLine) TO UserPassword
+    SET Pass-Is-Invalid TO TRUE
+    PERFORM UNTIL Pass-Is-Valid OR EOF-IN = 'Y'
+        MOVE "Please enter your password: " TO WS-MSG
+        PERFORM OUT-MSG
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN = 'Y'
+            EXIT PERFORM
+        END-IF
+        MOVE FUNCTION TRIM(InLine) TO UserPassword
 
-         PERFORM Validate-Password
-         IF Pass-Is-Invalid
-             MOVE "It doesn't meet requirements, try again." TO WS-MSG
-             PERFORM OUT-MSG
-         END-IF
-     END-PERFORM
+        PERFORM Validate-Password
+        IF Pass-Is-Invalid
+            MOVE "It doesn't meet requirements, try again." TO WS-MSG
+            PERFORM OUT-MSG
+        END-IF
+    END-PERFORM
+
+     *> --- Check if EOF reached during registration ---
+     IF EOF-IN = 'Y'
+         EXIT PARAGRAPH
+     END-IF
 
      *> --- Save in-memory ---
      ADD 1 TO Account-Count
@@ -1398,28 +1461,36 @@
  *> -----------------------------
  *> MAIN APPLICATION MENUS
  *> -----------------------------
- Show-Main-Menu.
-     MOVE "1. Create/Edit My Profile" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "2. View My Profile" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "3. Search for a job" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "4. Find someone you know" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "5. View My Pending Connection Requests" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "6. View My Network" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "7. Messages" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "8. Learn a New Skill" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "9. Log Out" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "Enter your choice: " TO WS-MSG
-     PERFORM OUT-MSG
-     .
+Show-Main-Menu.
+    MOVE "--- Main Menu ---" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "0. Exit Program" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "1. Create/Edit My Profile" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "2. View My Profile" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "3. Search for a job" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "4. Find someone you know" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "5. View My Pending Connection Requests" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "6. View My Network" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "7. Messages" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "8. Learn a New Skill" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "9. Log Out" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "Enter your choice (0-9): " TO WS-MSG
+    PERFORM OUT-MSG
+    .
 
  J-Search-Loop.
      MOVE SPACES TO WS-MENU-SELECTION
@@ -1435,11 +1506,11 @@
                      PERFORM Browse-Jobs-Enhanced
                  WHEN "3"
                      PERFORM View-My-Applications
-                 WHEN "4"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
+                WHEN "4"
+                    CONTINUE
+                WHEN OTHER
+                    MOVE "Invalid choice. Please enter 0-4." TO WS-MSG
+                    PERFORM OUT-MSG
              END-EVALUATE
          END-IF
      END-PERFORM
@@ -1463,31 +1534,39 @@
      END-IF
      .
 
- Connection-Options-Menu.
-     PERFORM UNTIL WS-MENU-SELECTION = "2" OR EOF-IN = "Y"
-         MOVE "1. Send Connection Request" TO WS-MSG
-         PERFORM OUT-MSG
-         MOVE "2. Back to Main Menu" TO WS-MSG
-         PERFORM OUT-MSG
-         MOVE "Enter your choice: " TO WS-MSG
-         PERFORM OUT-MSG
+Connection-Options-Menu.
+    PERFORM UNTIL WS-MENU-SELECTION = "2" OR EOF-IN = "Y"
+        MOVE "--- Connection Options ---" TO WS-MSG
+        PERFORM OUT-MSG
+        MOVE SPACES TO WS-MSG
+        PERFORM OUT-MSG
+        MOVE "0. Exit Program" TO WS-MSG
+        PERFORM OUT-MSG
+        MOVE "1. Send Connection Request" TO WS-MSG
+        PERFORM OUT-MSG
+        MOVE "2. Return to Main Menu" TO WS-MSG
+        PERFORM OUT-MSG
+        MOVE SPACES TO WS-MSG
+        PERFORM OUT-MSG
+        MOVE "Enter your choice (0-2): " TO WS-MSG
+        PERFORM OUT-MSG
 
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     PERFORM Send-Connection-Request
-                     MOVE "2" TO WS-MENU-SELECTION
-                 WHEN "2"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN NOT = "Y"
+            MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+            EVALUATE WS-MENU-SELECTION
+                WHEN "1"
+                    PERFORM Send-Connection-Request
+                    MOVE "2" TO WS-MENU-SELECTION
+                WHEN "2"
+                    CONTINUE
+                WHEN OTHER
+                    MOVE "Invalid choice. Please enter 0-2." TO WS-MSG
+                    PERFORM OUT-MSG
+            END-EVALUATE
+        END-IF
+    END-PERFORM
+    .
 
  Send-Connection-Request.
      *> Validate the connection request
@@ -1515,9 +1594,8 @@
  Validate-Connection-Request.
      SET Connection-Is-Valid TO TRUE
 
-     *> Check if trying to connect with yourself
      IF UserName = Search-Username
-         MOVE "You cannot send a connection request to yourself." TO WS-MSG
+         MOVE "You cannot send yourself a connection request." TO WS-MSG
          PERFORM OUT-MSG
          SET Connection-Is-Invalid TO TRUE
          EXIT PARAGRAPH
@@ -1812,20 +1890,26 @@
  *> ================================
  *> Job Search/Internship menu
  *> ================================
- J-Search-Menu.
-     MOVE "--- Job Search/Internship Menu ---" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "1. Post a Job/Internship" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "2. Browse Jobs/Internships" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "3. View My Applications" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "4. Back to Main Menu" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "Enter your choice: " TO WS-MSG
-     PERFORM OUT-MSG
-     .
+J-Search-Menu.
+    MOVE "--- Job Search/Internship Menu ---" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "0. Exit Program" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "1. Post a Job/Internship" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "2. Browse Jobs/Internships" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "3. View My Applications" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "4. Return to Main Menu" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "Enter your choice (0-4): " TO WS-MSG
+    PERFORM OUT-MSG
+    .
 
  *> ================================
  *> Post a Job/Internship Flow
@@ -2061,7 +2145,7 @@
                  WHEN "2"
                      CONTINUE
                  WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
+                     MOVE "Invalid choice. Please enter 1-2." TO WS-MSG
                      PERFORM OUT-MSG
              END-EVALUATE
          END-IF
@@ -2246,83 +2330,83 @@
                      PERFORM Interview-Loop
                  WHEN "4"
                      PERFORM Resume-Loop
-                 WHEN "5"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
+                WHEN "5"
+                    CONTINUE
+                WHEN OTHER
+                    MOVE "Invalid choice. Please enter 0-5." TO WS-MSG
+                    PERFORM OUT-MSG
              END-EVALUATE
          END-IF
      END-PERFORM
      .
 
- Web-Dev-Loop.
-     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
-         PERFORM Web-Dev-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
+Web-Dev-Loop.
+    PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
+        PERFORM Web-Dev-Menu
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN NOT = "Y"
+            MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+            EVALUATE WS-MENU-SELECTION
+                WHEN "1"
+                    CONTINUE
+                WHEN OTHER
+                    MOVE "Invalid choice. Please enter 0-1." TO WS-MSG
+                    PERFORM OUT-MSG
+            END-EVALUATE
+        END-IF
+    END-PERFORM
+    .
 
- Deep-Learning-Loop.
-     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
-         PERFORM Deep-Learning-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
+Deep-Learning-Loop.
+    PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
+        PERFORM Deep-Learning-Menu
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN NOT = "Y"
+            MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+            EVALUATE WS-MENU-SELECTION
+                WHEN "1"
+                    CONTINUE
+                WHEN OTHER
+                    MOVE "Invalid choice. Please enter 0-1." TO WS-MSG
+                    PERFORM OUT-MSG
+            END-EVALUATE
+        END-IF
+    END-PERFORM
+    .
 
- Interview-Loop.
-     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
-         PERFORM Interview-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
+Interview-Loop.
+    PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
+        PERFORM Interview-Menu
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN NOT = "Y"
+            MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+            EVALUATE WS-MENU-SELECTION
+                WHEN "1"
+                    CONTINUE
+                WHEN OTHER
+                    MOVE "Invalid choice. Please enter 0-1." TO WS-MSG
+                    PERFORM OUT-MSG
+            END-EVALUATE
+        END-IF
+    END-PERFORM
+    .
 
- Resume-Loop.
-     PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
-         PERFORM Resume-Menu
-         PERFORM READ-NEXT-INPUT
-         IF EOF-IN NOT = "Y"
-             MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
-             EVALUATE WS-MENU-SELECTION
-                 WHEN "1"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
-             END-EVALUATE
-         END-IF
-     END-PERFORM
-     .
+Resume-Loop.
+    PERFORM UNTIL WS-MENU-SELECTION = "1" OR EOF-IN = "Y"
+        PERFORM Resume-Menu
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN NOT = "Y"
+            MOVE WS-INPUT-VALUE TO WS-MENU-SELECTION
+            EVALUATE WS-MENU-SELECTION
+                WHEN "1"
+                    CONTINUE
+                WHEN OTHER
+                    MOVE "Invalid choice. Please enter 0-1." TO WS-MSG
+                    PERFORM OUT-MSG
+            END-EVALUATE
+        END-IF
+    END-PERFORM
+    .
 
  Profile-Loop.
      PERFORM UNTIL WS-MENU-SELECTION = "5" OR EOF-IN = "Y"
@@ -2339,11 +2423,11 @@
                      PERFORM Edit-Education
                  WHEN "4"
                      PERFORM Save-Profile
-                 WHEN "5"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
+                WHEN "5"
+                    CONTINUE
+                WHEN OTHER
+                    MOVE "Invalid choice. Please enter 0-5." TO WS-MSG
+                    PERFORM OUT-MSG
              END-EVALUATE
          END-IF
      END-PERFORM
@@ -2352,103 +2436,151 @@
  *> -----------------------------
  *> MENU DISPLAY PARAGRAPHS
  *> -----------------------------
- Skill-Menu.
-     MOVE "1. Learn Web Development" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "2. Learn Deep Learning" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "3. Learn How To Crack Interview Questions" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "4. Learn How To Optimize Your Resume" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "5. Return" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "Enter your choice: " TO WS-MSG
-     PERFORM OUT-MSG
-     .
-
- Web-Dev-Menu.
-    MOVE "Web Development - Quick Tips" TO WS-MSG
+Skill-Menu.
+    MOVE "--- Learn a New Skill ---" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "- Start with HTML & CSS basics (layout, flexbox, forms)" TO WS-MSG
+    MOVE SPACES TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "- Learn JavaScript fundamentals (DOM, events, fetch)" TO WS-MSG
+    MOVE "0. Exit Program" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "- Build a simple portfolio site with 2-3 pages" TO WS-MSG
+    MOVE "1. Learn Web Development" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "- Use Git/GitHub for version control" TO WS-MSG
+    MOVE "2. Learn Deep Learning" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "1. Return" TO WS-MSG
+    MOVE "3. Learn How To Crack Interview Questions" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "Enter your choice: " TO WS-MSG
+    MOVE "4. Learn How To Optimize Your Resume" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "5. Return to Main Menu" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "Enter your choice (0-5): " TO WS-MSG
     PERFORM OUT-MSG
     .
 
- Deep-Learning-Menu.
-    MOVE "Deep Learning - Quick Path" TO WS-MSG
+Web-Dev-Menu.
+   MOVE "--- Web Development - Quick Tips ---" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Start with HTML & CSS basics (layout, flexbox, forms)" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Learn JavaScript fundamentals (DOM, events, fetch)" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Build a simple portfolio site with 2-3 pages" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Use Git/GitHub for version control" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "0. Exit Program" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "1. Return to Skills Menu" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "Enter your choice (0-1): " TO WS-MSG
+   PERFORM OUT-MSG
+   .
+
+Deep-Learning-Menu.
+   MOVE "--- Deep Learning - Quick Path ---" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Brush up linear algebra, calculus, and probability" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Practice Python + NumPy; learn tensors and autodiff" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Train a small model (MNIST/CIFAR) and tune learning rate" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Read training logs; avoid overfitting with regularization" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "0. Exit Program" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "1. Return to Skills Menu" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "Enter your choice (0-1): " TO WS-MSG
+   PERFORM OUT-MSG
+   .
+
+Interview-Menu.
+   MOVE "--- Interview Prep - Checklist ---" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Review Big-O and core data structures/algorithms" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Solve 1-2 practice problems daily (arrays, strings, graphs)" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Prepare STAR stories for behavioral questions" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Do mock interviews and reflect on feedback" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "0. Exit Program" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "1. Return to Skills Menu" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "Enter your choice (0-1): " TO WS-MSG
+   PERFORM OUT-MSG
+   .
+
+Resume-Menu.
+   MOVE "--- Resume Optimization - Tips ---" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Keep it to one page (students/early career)" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Use action verbs and quantify impact (e.g., 'reduced build time 30%')" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Tailor bullets to the job description keywords" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "- Put most relevant projects/experience at the top" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "0. Exit Program" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "1. Return to Skills Menu" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE "Enter your choice (0-1): " TO WS-MSG
+   PERFORM OUT-MSG
+   .
+
+Profile-Menu.
+    MOVE "--- Profile Management ---" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "- Brush up linear algebra, calculus, and probability" TO WS-MSG
+    MOVE SPACES TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "- Practice Python + NumPy; learn tensors and autodiff" TO WS-MSG
+    MOVE "0. Exit Program" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "- Train a small model (MNIST/CIFAR) and tune learning rate" TO WS-MSG
+    MOVE "1. Edit Basic Information" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "- Read training logs; avoid overfitting with regularization" TO WS-MSG
+    MOVE "2. Edit Experience" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "1. Return" TO WS-MSG
+    MOVE "3. Edit Education" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "Enter your choice: " TO WS-MSG
+    MOVE "4. Save Profile" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "5. Return to Main Menu" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "Enter your choice (0-5): " TO WS-MSG
     PERFORM OUT-MSG
     .
-
- Interview-Menu.
-    MOVE "Interview Prep - Checklist" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "- Review Big-O and core data structures/algorithms" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "- Solve 1-2 practice problems daily (arrays, strings, graphs)" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "- Prepare STAR stories for behavioral questions" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "- Do mock interviews and reflect on feedback" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "1. Return" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "Enter your choice: " TO WS-MSG
-    PERFORM OUT-MSG
-    .
-
- Resume-Menu.
-    MOVE "Resume Optimization - Tips" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "- Keep it to one page (students/early career)" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "- Use action verbs and quantify impact (e.g., 'reduced build time 30%')" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "- Tailor bullets to the job description keywords" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "- Put most relevant projects/experience at the top" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "1. Return" TO WS-MSG
-    PERFORM OUT-MSG
-    MOVE "Enter your choice: " TO WS-MSG
-    PERFORM OUT-MSG
-    .
-
- Profile-Menu.
-     MOVE "1. Edit Basic Information" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "2. Edit Experience" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "3. Edit Education" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "4. Save Profile" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "5. Return" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "Enter your choice: " TO WS-MSG
-     PERFORM OUT-MSG
-     .
 
  *> ===============================================================
  *> NEW: Messaging System (Epic #8 - Week 8)
@@ -2465,28 +2597,34 @@
                      PERFORM Send-Message
                  WHEN "2"
                      PERFORM View-My-Messages
-                 WHEN "3"
-                     CONTINUE
-                 WHEN OTHER
-                     MOVE "Invalid choice." TO WS-MSG
-                     PERFORM OUT-MSG
+                WHEN "3"
+                    CONTINUE
+                WHEN OTHER
+                    MOVE "Invalid choice. Please enter 0-3." TO WS-MSG
+                    PERFORM OUT-MSG
              END-EVALUATE
          END-IF
      END-PERFORM
      .
 
- Messages-Menu.
-     MOVE "--- Messages Menu ---" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "1. Send a New Message" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "2. View My Messages" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "3. Back to Main Menu" TO WS-MSG
-     PERFORM OUT-MSG
-     MOVE "Enter your choice: " TO WS-MSG
-     PERFORM OUT-MSG
-     .
+Messages-Menu.
+    MOVE "--- Messages Menu ---" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "0. Exit Program" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "1. Send a New Message" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "2. View My Messages" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "3. Return to Main Menu" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE "Enter your choice (0-3): " TO WS-MSG
+    PERFORM OUT-MSG
+    .
 
  Send-Message.
      MOVE "Enter recipient's username (must be a connection): " TO WS-MSG
@@ -2522,27 +2660,42 @@
      END-IF
      .
 
- Validate-Message-Recipient.
-     SET Message-Recipient-Invalid TO TRUE
+Validate-Message-Recipient.
+    SET Message-Recipient-Invalid TO TRUE
 
-     *> Check if recipient is a connected user (status = 'A')
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
-         IF Conn-Status(I) = "A"
-             IF (Conn-Sender(I) = UserName AND
-                 Conn-Recipient(I) = Message-Recipient) OR
-                (Conn-Sender(I) = Message-Recipient AND
-                 Conn-Recipient(I) = UserName)
-                 SET Message-Recipient-Valid TO TRUE
-                 EXIT PERFORM
-             END-IF
-         END-IF
-     END-PERFORM
+    *> Check if recipient is a connected user (status = 'A')
+    PERFORM VARYING I FROM 1 BY 1 UNTIL I > Connection-Count
+        IF Conn-Status(I) = "A"
+            IF (Conn-Sender(I) = UserName AND
+                Conn-Recipient(I) = Message-Recipient) OR
+               (Conn-Sender(I) = Message-Recipient AND
+                Conn-Recipient(I) = UserName)
+                SET Message-Recipient-Valid TO TRUE
+                EXIT PERFORM
+            END-IF
+        END-IF
+    END-PERFORM
 
-     IF Message-Recipient-Invalid
-         MOVE "You can only message users you are connected with." TO WS-MSG
-         PERFORM OUT-MSG
-     END-IF
-     .
+    IF Message-Recipient-Valid
+        SET Message-Recipient-Invalid TO TRUE
+        PERFORM VARYING I FROM 1 BY 1 UNTIL I > Account-Count
+            IF Message-Recipient = Acc-Username(I)
+                SET Message-Recipient-Valid TO TRUE
+                EXIT PERFORM
+            END-IF
+        END-PERFORM
+        
+        IF Message-Recipient-Invalid
+            MOVE "This user's account no longer exists." TO WS-MSG
+            PERFORM OUT-MSG
+        END-IF
+    END-IF
+
+    IF Message-Recipient-Invalid
+        MOVE "You can only message users you are connected with." TO WS-MSG
+        PERFORM OUT-MSG
+    END-IF
+    .
 
  Append-Message-To-Disk.
      *> Record format: sender|recipient|message
