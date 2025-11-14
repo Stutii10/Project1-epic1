@@ -1,5 +1,5 @@
 *> =======================================================
-*> InCollege - Week 7: Browse Jobs & Applications with Report
+*> InCollege - Week 10
 *> Inputs  : InCollege-Input.txt
 *> Outputs : InCollege-Output.txt
 *> Accounts: Accounts.dat (username|password per line)
@@ -478,13 +478,17 @@ READ-NEXT-INPUT.
  *> LOGIN MENU
  *> -----------------------------
 Show-Login-Menu.
-    MOVE "Welcome to InCollege!" TO WS-MSG
+    MOVE "--- Welcome to InCollege! ---" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
     PERFORM OUT-MSG
     MOVE "0. Exit Program" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "1. Log In" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "2. Create New Account" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
     PERFORM OUT-MSG
     MOVE "Enter your choice (0-2): " TO WS-MSG
     PERFORM OUT-MSG
@@ -1420,6 +1424,10 @@ Validate-Password.
  *> MAIN APPLICATION MENUS
  *> -----------------------------
 Show-Main-Menu.
+    MOVE "--- Main Menu ---" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
     MOVE "0. Exit Program" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "1. Create/Edit My Profile" TO WS-MSG
@@ -1439,6 +1447,8 @@ Show-Main-Menu.
     MOVE "8. Learn a New Skill" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "9. Log Out" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
     PERFORM OUT-MSG
     MOVE "Enter your choice (0-9): " TO WS-MSG
     PERFORM OUT-MSG
@@ -1488,11 +1498,17 @@ Show-Main-Menu.
 
 Connection-Options-Menu.
     PERFORM UNTIL WS-MENU-SELECTION = "2" OR EOF-IN = "Y"
+        MOVE "--- Connection Options ---" TO WS-MSG
+        PERFORM OUT-MSG
+        MOVE SPACES TO WS-MSG
+        PERFORM OUT-MSG
         MOVE "0. Exit Program" TO WS-MSG
         PERFORM OUT-MSG
         MOVE "1. Send Connection Request" TO WS-MSG
         PERFORM OUT-MSG
-        MOVE "2. Back to Main Menu" TO WS-MSG
+        MOVE "2. Return to Main Menu" TO WS-MSG
+        PERFORM OUT-MSG
+        MOVE SPACES TO WS-MSG
         PERFORM OUT-MSG
         MOVE "Enter your choice (0-2): " TO WS-MSG
         PERFORM OUT-MSG
@@ -1839,6 +1855,8 @@ Connection-Options-Menu.
 J-Search-Menu.
     MOVE "--- Job Search/Internship Menu ---" TO WS-MSG
     PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
     MOVE "0. Exit Program" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "1. Post a Job/Internship" TO WS-MSG
@@ -1847,7 +1865,9 @@ J-Search-Menu.
     PERFORM OUT-MSG
     MOVE "3. View My Applications" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "4. Back to Main Menu" TO WS-MSG
+    MOVE "4. Return to Main Menu" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
     PERFORM OUT-MSG
     MOVE "Enter your choice (0-4): " TO WS-MSG
     PERFORM OUT-MSG
@@ -2379,6 +2399,10 @@ Resume-Loop.
  *> MENU DISPLAY PARAGRAPHS
  *> -----------------------------
 Skill-Menu.
+    MOVE "--- Learn a New Skill ---" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
     MOVE "0. Exit Program" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "1. Learn Web Development" TO WS-MSG
@@ -2389,14 +2413,18 @@ Skill-Menu.
     PERFORM OUT-MSG
     MOVE "4. Learn How To Optimize Your Resume" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "5. Return" TO WS-MSG
+    MOVE "5. Return to Main Menu" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
     PERFORM OUT-MSG
     MOVE "Enter your choice (0-5): " TO WS-MSG
     PERFORM OUT-MSG
     .
 
 Web-Dev-Menu.
-   MOVE "Web Development - Quick Tips" TO WS-MSG
+   MOVE "--- Web Development - Quick Tips ---" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
    PERFORM OUT-MSG
    MOVE "- Start with HTML & CSS basics (layout, flexbox, forms)" TO WS-MSG
    PERFORM OUT-MSG
@@ -2406,16 +2434,22 @@ Web-Dev-Menu.
    PERFORM OUT-MSG
    MOVE "- Use Git/GitHub for version control" TO WS-MSG
    PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
    MOVE "0. Exit Program" TO WS-MSG
    PERFORM OUT-MSG
-   MOVE "1. Return" TO WS-MSG
+   MOVE "1. Return to Skills Menu" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
    PERFORM OUT-MSG
    MOVE "Enter your choice (0-1): " TO WS-MSG
    PERFORM OUT-MSG
    .
 
 Deep-Learning-Menu.
-   MOVE "Deep Learning - Quick Path" TO WS-MSG
+   MOVE "--- Deep Learning - Quick Path ---" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
    PERFORM OUT-MSG
    MOVE "- Brush up linear algebra, calculus, and probability" TO WS-MSG
    PERFORM OUT-MSG
@@ -2425,16 +2459,22 @@ Deep-Learning-Menu.
    PERFORM OUT-MSG
    MOVE "- Read training logs; avoid overfitting with regularization" TO WS-MSG
    PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
    MOVE "0. Exit Program" TO WS-MSG
    PERFORM OUT-MSG
-   MOVE "1. Return" TO WS-MSG
+   MOVE "1. Return to Skills Menu" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
    PERFORM OUT-MSG
    MOVE "Enter your choice (0-1): " TO WS-MSG
    PERFORM OUT-MSG
    .
 
 Interview-Menu.
-   MOVE "Interview Prep - Checklist" TO WS-MSG
+   MOVE "--- Interview Prep - Checklist ---" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
    PERFORM OUT-MSG
    MOVE "- Review Big-O and core data structures/algorithms" TO WS-MSG
    PERFORM OUT-MSG
@@ -2444,16 +2484,22 @@ Interview-Menu.
    PERFORM OUT-MSG
    MOVE "- Do mock interviews and reflect on feedback" TO WS-MSG
    PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
    MOVE "0. Exit Program" TO WS-MSG
    PERFORM OUT-MSG
-   MOVE "1. Return" TO WS-MSG
+   MOVE "1. Return to Skills Menu" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
    PERFORM OUT-MSG
    MOVE "Enter your choice (0-1): " TO WS-MSG
    PERFORM OUT-MSG
    .
 
 Resume-Menu.
-   MOVE "Resume Optimization - Tips" TO WS-MSG
+   MOVE "--- Resume Optimization - Tips ---" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
    PERFORM OUT-MSG
    MOVE "- Keep it to one page (students/early career)" TO WS-MSG
    PERFORM OUT-MSG
@@ -2463,15 +2509,23 @@ Resume-Menu.
    PERFORM OUT-MSG
    MOVE "- Put most relevant projects/experience at the top" TO WS-MSG
    PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
+   PERFORM OUT-MSG
    MOVE "0. Exit Program" TO WS-MSG
    PERFORM OUT-MSG
-   MOVE "1. Return" TO WS-MSG
+   MOVE "1. Return to Skills Menu" TO WS-MSG
+   PERFORM OUT-MSG
+   MOVE SPACES TO WS-MSG
    PERFORM OUT-MSG
    MOVE "Enter your choice (0-1): " TO WS-MSG
    PERFORM OUT-MSG
    .
 
 Profile-Menu.
+    MOVE "--- Profile Management ---" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
     MOVE "0. Exit Program" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "1. Edit Basic Information" TO WS-MSG
@@ -2482,7 +2536,9 @@ Profile-Menu.
     PERFORM OUT-MSG
     MOVE "4. Save Profile" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "5. Return" TO WS-MSG
+    MOVE "5. Return to Main Menu" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
     PERFORM OUT-MSG
     MOVE "Enter your choice (0-5): " TO WS-MSG
     PERFORM OUT-MSG
@@ -2516,13 +2572,17 @@ Profile-Menu.
 Messages-Menu.
     MOVE "--- Messages Menu ---" TO WS-MSG
     PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
+    PERFORM OUT-MSG
     MOVE "0. Exit Program" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "1. Send a New Message" TO WS-MSG
     PERFORM OUT-MSG
     MOVE "2. View My Messages" TO WS-MSG
     PERFORM OUT-MSG
-    MOVE "3. Back to Main Menu" TO WS-MSG
+    MOVE "3. Return to Main Menu" TO WS-MSG
+    PERFORM OUT-MSG
+    MOVE SPACES TO WS-MSG
     PERFORM OUT-MSG
     MOVE "Enter your choice (0-3): " TO WS-MSG
     PERFORM OUT-MSG
