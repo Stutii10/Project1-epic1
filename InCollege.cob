@@ -497,45 +497,68 @@ Show-Login-Menu.
  *> -----------------------------
  *> PROFILE MANAGEMENT PARAGRAPHS
  *> -----------------------------
- Edit-Basic-Info.
-     MOVE "=== Basic Information ===" TO WS-MSG
-     PERFORM OUT-MSG
+Edit-Basic-Info.
+    MOVE "=== Basic Information ===" TO WS-MSG
+    PERFORM OUT-MSG
 
-     MOVE "Enter First Name (required): " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Prof-First-Name
+    MOVE "Enter First Name (required): " TO WS-MSG
+    PERFORM OUT-MSG
+    PERFORM READ-NEXT-INPUT
+    IF EOF-IN = 'Y'
+        EXIT PARAGRAPH
+    END-IF
+    MOVE FUNCTION TRIM(InLine) TO Prof-First-Name
 
-     MOVE "Enter Last Name (required): " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Prof-Last-Name
+    MOVE "Enter Last Name (required): " TO WS-MSG
+    PERFORM OUT-MSG
+    PERFORM READ-NEXT-INPUT
+    IF EOF-IN = 'Y'
+        EXIT PARAGRAPH
+    END-IF
+    MOVE FUNCTION TRIM(InLine) TO Prof-Last-Name
 
-     MOVE "Enter University/College (required): " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Prof-University
+    MOVE "Enter University/College (required): " TO WS-MSG
+    PERFORM OUT-MSG
+    PERFORM READ-NEXT-INPUT
+    IF EOF-IN = 'Y'
+        EXIT PARAGRAPH
+    END-IF
+    MOVE FUNCTION TRIM(InLine) TO Prof-University
 
-     MOVE "Enter Major (required): " TO WS-MSG
-     PERFORM OUT-MSG
-     PERFORM READ-NEXT-INPUT
-     MOVE FUNCTION TRIM(InLine) TO Prof-Major
+    MOVE "Enter Major (required): " TO WS-MSG
+    PERFORM OUT-MSG
+    PERFORM READ-NEXT-INPUT
+    IF EOF-IN = 'Y'
+        EXIT PARAGRAPH
+    END-IF
+    MOVE FUNCTION TRIM(InLine) TO Prof-Major
 
-     PERFORM UNTIL Year-Is-Valid
-         MOVE "Enter Graduation Year (4 digits, e.g. 2025): " TO WS-MSG
-         PERFORM OUT-MSG
-         PERFORM READ-NEXT-INPUT
-         MOVE FUNCTION TRIM(InLine) TO Prof-Grad-Year
-         PERFORM Validate-Graduation-Year
-         IF Year-Is-Invalid
-             MOVE "Invalid year. Please enter a 4-digit year." TO WS-MSG
-             PERFORM OUT-MSG
-         END-IF
-     END-PERFORM
+    PERFORM UNTIL Year-Is-Valid OR EOF-IN = 'Y'
+        MOVE "Enter Graduation Year (4 digits, e.g. 2025): " TO WS-MSG
+        PERFORM OUT-MSG
+        PERFORM READ-NEXT-INPUT
+        IF EOF-IN = 'Y'
+            EXIT PERFORM
+        END-IF
+        MOVE FUNCTION TRIM(InLine) TO Prof-Grad-Year
+        PERFORM Validate-Graduation-Year
+        IF Year-Is-Invalid
+            MOVE "Invalid year. Please enter a 4-digit year." TO WS-MSG
+            PERFORM OUT-MSG
+        END-IF
+    END-PERFORM
+
+     *> Check if EOF reached during graduation year input
+     IF EOF-IN = 'Y'
+         EXIT PARAGRAPH
+     END-IF
 
      MOVE "Enter About Me (optional, press enter to skip): " TO WS-MSG
      PERFORM OUT-MSG
      PERFORM READ-NEXT-INPUT
+     IF EOF-IN = 'Y'
+         EXIT PARAGRAPH
+     END-IF
      MOVE FUNCTION TRIM(InLine) TO Prof-About-Me
 
      MOVE "Basic information updated." TO WS-MSG
@@ -1184,21 +1207,25 @@ Show-Login-Menu.
  *> Helper: password validation
  *> -----------------------------
 Validate-Password.
-    SET Pass-Is-Invalid TO TRUE
-    MOVE 0 TO Has-Upper Has-Digit Has-Special
-    MOVE 0 TO PassLen
+   SET Pass-Is-Invalid TO TRUE
+   MOVE 0 TO Has-Upper Has-Digit Has-Special
+   MOVE 0 TO PassLen
 
-    PERFORM VARYING I FROM 1 BY 1 UNTIL I > 20
-        MOVE UserPassword(I:1) TO TempChar
-        IF TempChar = SPACE AND PassLen > 0
-            MOVE "Password cannot contain spaces." TO WS-MSG
-            PERFORM OUT-MSG
-            EXIT PARAGRAPH
-        END-IF
-        IF TempChar NOT = SPACE
-            ADD 1 TO PassLen
-        END-IF
-    END-PERFORM
+   *> First, calculate the actual password length (stop at first space or end)
+   PERFORM VARYING I FROM 1 BY 1 UNTIL I > 20
+       MOVE UserPassword(I:1) TO TempChar
+       IF TempChar = SPACE
+           EXIT PERFORM
+       END-IF
+       ADD 1 TO PassLen
+   END-PERFORM
+
+   *> Check if password contains spaces in the middle (if length doesn't match trimmed length)
+   IF FUNCTION LENGTH(FUNCTION TRIM(UserPassword)) NOT = PassLen
+       MOVE "Password cannot contain spaces." TO WS-MSG
+       PERFORM OUT-MSG
+       EXIT PARAGRAPH
+   END-IF
 
     *> length check
     IF PassLen < 8 OR PassLen > 12
