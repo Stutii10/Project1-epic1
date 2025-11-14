@@ -1,66 +1,74 @@
 2
-alice
-Password1!
-2
-bob
-Password2!
+john_doe
+SecurePass1!
 1
-alice
-Password1!
+john_doe
+SecurePass1!
 1
 1
-Alice
-Smith
-USF
-CS
+John
+Doe
+University of Florida
+Computer Science
 2025
-
+I am a software engineering student passionate about web development
+2
+1
+Software Engineer Intern
+Google
+Summer 2024
+Developed features for Google Search
 4
 5
+2
 9
+2
+jane_smith
+SecurePass2!
 1
-bob
-Password2!
+jane_smith
+SecurePass2!
 1
 1
-Bob
+Jane
 Smith
-UF
-IT
+University of Tampa
+Information Technology
 2026
-
+IT enthusiast with focus on cybersecurity
+2
+1
+Cybersecurity Intern
+SecureNet Solutions
+Summer 2024
+Assisted with security audits
 4
 5
 9
 1
-alice
-Password1!
+john_doe
+SecurePass1!
 4
-Bob Smith
+Jane Smith
 1
+2
 9
 1
-bob
-Password2!
+jane_smith
+SecurePass2!
 5
 1
-9
-1
-alice
-Password1!
 7
 1
-bob
-Hey Bob! Glad we connected.
-1
-bob
-Hope you are doing well!
+john_doe
+Hello John! Great to connect with you. Thanks for reaching out!
 3
 9
 1
-bob
-Password2!
+john_doe
+SecurePass1!
 7
 2
 3
 9
+0
