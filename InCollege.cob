@@ -1166,45 +1166,53 @@
  *> -----------------------------
  *> Helper: password validation
  *> -----------------------------
- Validate-Password.
-     SET Pass-Is-Invalid TO TRUE
-     MOVE 0 TO Has-Upper Has-Digit Has-Special
-     MOVE 0 TO PassLen
+Validate-Password.
+    SET Pass-Is-Invalid TO TRUE
+    MOVE 0 TO Has-Upper Has-Digit Has-Special
+    MOVE 0 TO PassLen
 
-     *> length check (stop at first space)
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > 20
-         MOVE UserPassword(I:1) TO TempChar
-         IF TempChar = SPACE
-             EXIT PERFORM
-         ELSE
-             ADD 1 TO PassLen
-         END-IF
-     END-PERFORM
+    PERFORM VARYING I FROM 1 BY 1 UNTIL I > 20
+        MOVE UserPassword(I:1) TO TempChar
+        IF TempChar = SPACE AND PassLen > 0
+            MOVE "Password cannot contain spaces." TO WS-MSG
+            PERFORM OUT-MSG
+            EXIT PARAGRAPH
+        END-IF
+        IF TempChar NOT = SPACE
+            ADD 1 TO PassLen
+        END-IF
+    END-PERFORM
 
-     IF PassLen < 8 OR PassLen > 12
-         EXIT PARAGRAPH
-     END-IF
+    *> length check
+    IF PassLen < 8 OR PassLen > 12
+        MOVE "Password must be 8-12 characters long." TO WS-MSG
+        PERFORM OUT-MSG
+        EXIT PARAGRAPH
+    END-IF
 
-     *> character checks
-     PERFORM VARYING I FROM 1 BY 1 UNTIL I > PassLen
-         MOVE UserPassword(I:1) TO TempChar
-         IF TempChar >= "A" AND TempChar <= "Z"
-             MOVE 1 TO Has-Upper
-         END-IF
-         IF TempChar >= "0" AND TempChar <= "9"
-             MOVE 1 TO Has-Digit
-         END-IF
-         MOVE 0 TO CountVar
-         INSPECT Specials TALLYING CountVar FOR ALL TempChar
-         IF CountVar > 0
-             MOVE 1 TO Has-Special
-         END-IF
-     END-PERFORM
+    *> character checks
+    PERFORM VARYING I FROM 1 BY 1 UNTIL I > PassLen
+        MOVE UserPassword(I:1) TO TempChar
+        IF TempChar >= "A" AND TempChar <= "Z"
+            MOVE 1 TO Has-Upper
+        END-IF
+        IF TempChar >= "0" AND TempChar <= "9"
+            MOVE 1 TO Has-Digit
+        END-IF
+        MOVE 0 TO CountVar
+        INSPECT Specials TALLYING CountVar FOR ALL TempChar
+        IF CountVar > 0
+            MOVE 1 TO Has-Special
+        END-IF
+    END-PERFORM
 
-     IF Has-Upper = 1 AND Has-Digit = 1 AND Has-Special = 1
-         SET Pass-Is-Valid TO TRUE
-     END-IF
-     .
+    IF Has-Upper = 1 AND Has-Digit = 1 AND Has-Special = 1
+        SET Pass-Is-Valid TO TRUE
+    ELSE
+        MOVE "Password must have uppercase, digit, and special character." TO WS-MSG
+        PERFORM OUT-MSG
+    END-IF
+    .
 
  *> -----------------------------
  *> Load accounts from disk at startup
